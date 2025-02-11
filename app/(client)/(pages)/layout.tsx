@@ -10,9 +10,7 @@ const Layout = ({ children }: Props) => {
       {/* <Sidebar /> */}
       <div className="w-full">
         <InfoBar />
-        <div className="p-3">
-          {children}
-        </div>
+        <div className="p-3">{children}</div>
       </div>
     </div>
   );

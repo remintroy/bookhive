@@ -1,43 +1,43 @@
-import React from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { BookOpenIcon } from "lucide-react";
+import Link from "next/link";
 
 type Props = {
-  title?: string;
-  description?: string;
-  category?: string[];
+  id: number;
+  title: string;
+  author: string;
+  condition: string;
+  imageUrl: string;
 };
 
-const ProductCard = (props: Props) => {
+const ProductCard = ({ id, title, author, condition, imageUrl }: Props) => {
   return (
-    <Card className="relative w-max overflow-hidden max-w-[300px]">
-      <Image width={400} height={300} alt="product" src={"https://picsum.photos/400/300"} />
-      <CardHeader>
-        <CardTitle>Atomic habits</CardTitle>
-        <CardDescription>Lorem ipsum dolor sit amet</CardDescription>
-        <div className="flex flex-row flex-wrap gap-1">
-          <Badge variant={"secondary"}>motivation</Badge>
-          <Badge variant={"secondary"}>biography</Badge>
-          <Badge variant={"secondary"}>well being</Badge>
-        </div>
+    <Card className="w-full max-w-[400px] overflow-hidden">
+      <div className="relative">
+        <Image
+          width={400}
+          height={200}
+          alt={title}
+          src={imageUrl || "/placeholder.svg"}
+          className="object-cover h-[200px]"
+        />
+        <Badge variant="secondary" className="absolute right-2 top-2">
+          {condition}
+        </Badge>
+      </div>
+      <CardHeader className="p-4 space-y-1">
+        <CardTitle className="text-lg line-clamp-1">{title}</CardTitle>
+        <CardDescription className="text-sm">{author}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-row gap-2 items-center">
-          <Avatar className="cursor-pointer">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          <small>John Doe</small>
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex flex-row gap-2">
-        <Button className="w-full">Buy now</Button>
-        <Button className="w-full" variant={"secondary"}>
-          View details
+      <CardFooter className="p-4 pt-0 flex justify-between items-center">
+        <Button className="w-full" variant={"secondary"} asChild>
+          <Link href={`/book/${id}`}>
+            <BookOpenIcon className="h-4 w-4 mr-2" />
+            View Details
+          </Link>
         </Button>
       </CardFooter>
     </Card>

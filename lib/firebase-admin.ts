@@ -1,11 +1,15 @@
-import { initializeApp, applicationDefault } from "firebase-admin/app";
+import { initializeApp, applicationDefault, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
+// initialize firebase
 export const initializeFirebase = () => {
   initializeApp({
     credential: applicationDefault(),
   });
 };
+
+// initialize firebase if not initialized
+if (!getApps().length) initializeFirebase();
 
 // verify idToken and return user data
 export const verifyIdToken = async (idToken: string) => {

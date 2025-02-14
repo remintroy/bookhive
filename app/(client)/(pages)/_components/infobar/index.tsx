@@ -13,24 +13,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import useMetadata from "@/hooks/useMetadata";
 import { app } from "@/lib/constants";
 import { auth } from "@/lib/firebase";
-import { signOut, User } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { BookHeart, ListOrdered, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 const InfoBar = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const metadata = useMetadata();
   const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -55,13 +48,13 @@ const InfoBar = () => {
             Donate books <BookHeart />
           </Button>
           <ModeToggle />
-          {user ? (
+          {metadata ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={user.photoURL || "https://via.placeholder.com/40"} />
+                  <AvatarImage src={metadata?.photoURL} />
                   <AvatarFallback>
-                    {user?.displayName?.charAt(0) || user?.email?.charAt?.(0)?.toUpperCase?.()}
+                    {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -69,14 +62,14 @@ const InfoBar = () => {
                 <DropdownMenuLabel>
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="cursor-pointer">
-                      <AvatarImage src={user.photoURL || "https://via.placeholder.com/40"} />
+                      <AvatarImage src={metadata?.photoURL} />
                       <AvatarFallback>
-                        {user?.displayName?.charAt(0) || user?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
+                        {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-center">
-                      <p>{user.displayName}</p>
-                      <small>{user.email}</small>
+                      <p>{metadata?.displayName}</p>
+                      <small>{metadata.email}</small>
                     </div>
                   </div>
                 </DropdownMenuLabel>

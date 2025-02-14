@@ -1,18 +1,55 @@
+"use client";
+
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { app } from "@/lib/constants";
+import { signinWithGoogle, signinWithEmail } from "@/lib/firebase";
 import Image from "next/image";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 type Props = {};
 
 const SignIn = (props: Props) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const signInWithGoogleHandler = async () => {
+    try {
+      setLoading(true);
+      const userData = await signinWithGoogle();
+      router.push("/");
+    } catch (err) {
+      console.error("Google Sign-in Error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithEmailHandler = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const userData = await signinWithEmail(email, password);
+      router.push("/");
+    } catch (err) {
+      setError("Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
+          <a href="/" className="flex items-center gap-2 font-medium">
             <Image
               width={150}
               height={10}
@@ -31,17 +68,30 @@ const SignIn = (props: Props) => {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <div className={"flex flex-col gap-7"}>
+            <form className="flex flex-col gap-7" onSubmit={signInWithEmailHandler}>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Login to your account</h1>
-                <p className="text-balance text-sm text-muted-foreground">
-                  Enter your email below to login to your account
-                </p>
+                <h1 className="text-2xl font-bold">Login to BookHive</h1>
+                <p className="text-sm text-muted-foreground">Enter your email below to login to your account</p>
               </div>
+
+              {error && (
+                <Alert variant="destructive" className="dark:bg-red-100/80 bg-red-100">
+                  <AlertTitle className="capitalize">{error}</AlertTitle>
+                  {/* <AlertDescription>{error}</AlertDescription> */}
+                </Alert>
+              )}
+
               <div className="grid gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="m@example.com" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
@@ -50,15 +100,21 @@ const SignIn = (props: Props) => {
                       Forgot your password?
                     </a>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                   <span className="relative z-10 bg-background px-2 text-muted-foreground">Or continue with</span>
                 </div>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={signInWithGoogleHandler} disabled={loading}>
                   <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
                     <path
                       fill="#FFC107"
@@ -82,11 +138,11 @@ const SignIn = (props: Props) => {
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
+                <a href="/signup" className="underline">
                   Sign up
                 </a>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

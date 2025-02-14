@@ -74,10 +74,9 @@ const appGlobal = create<AppGlobal>((set) => ({
       }));
     },
     fetchData: async () => {
+      set((state) => ({ metadata: { ...state.metadata, loading: true } }));
       try {
-        set((state) => ({ metadata: { ...state.metadata, loading: true } }));
         const data = await server.get("/api/metadata");
-        // localStorage.setItem("token", data?.data?.accessToken);
         set((state) => ({ metadata: { ...state.metadata, ...data.data, loggedIn: true } }));
         return true;
       } catch (error: any) {

@@ -30,6 +30,8 @@ const InfoBar = () => {
     router.push("/signin");
   };
 
+  console.log(metadata)
+
   return (
     <>
       <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[100] bg-[hsl(var(--background))] border-b">
@@ -48,7 +50,7 @@ const InfoBar = () => {
             Donate books <BookHeart />
           </Button>
           <ModeToggle />
-          {metadata ? (
+          {metadata?.loggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">

@@ -4,14 +4,18 @@ import React, { useEffect } from "react";
 import Sidebar from "./_components/sidebar";
 import InfoBar from "./_components/infobar";
 import useMetadata from "@/hooks/useMetadata";
+import { auth } from "@/lib/firebase";
 
 type Props = { children: React.ReactNode };
 
 const Layout = ({ children }: Props) => {
   const metadata = useMetadata();
-  
+
   useEffect(() => {
-    metadata.fetchData();
+    const unsubscribe = auth.onAuthStateChanged(() => {
+      metadata.fetchData();
+    });
+    return () => unsubscribe();
   }, []);
 
   return (

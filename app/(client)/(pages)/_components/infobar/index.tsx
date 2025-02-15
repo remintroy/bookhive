@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 import useMetadata from "@/hooks/useMetadata";
 import { app } from "@/lib/constants";
 import { auth } from "@/lib/firebase";
@@ -20,33 +21,43 @@ import { signOut } from "firebase/auth";
 import { BookHeart, ListOrdered, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const InfoBar = () => {
   const metadata = useMetadata();
   const router = useRouter();
+  const redirect = useAuthRedirect();
+  const path = usePathname();
 
   const handleLogout = async () => {
     await signOut(auth);
-    router.push("/signin");
+    redirect.redirectToSignIn();
   };
 
   return (
     <>
       <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[100] bg-[hsl(var(--background))] border-b">
-        <Image
-          width={150}
-          height={10}
-          src="/Icon-large-dark.svg"
-          className="hidden dark:block"
-          alt={`${app?.name} Logo`}
-        />
-        <Image width={150} height={10} src="/Icon-large-light.svg" className="dark:hidden" alt={`${app?.name} Logo`} />
+        <Link href={"/"} className="flex-shrink-0">
+          <Image
+            width={150}
+            height={10}
+            src="/Icon-large-dark.svg"
+            className="hidden dark:block"
+            alt={`${app?.name} Logo`}
+          />
+          <Image
+            width={150}
+            height={10}
+            src="/Icon-large-light.svg"
+            className="dark:hidden"
+            alt={`${app?.name} Logo`}
+          />
+        </Link>
 
         <div className="w-full flex flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0">
           <Input className="max-w-[300px]" placeholder="Search books" />
           <Link href="/donate-book">
-            <Button>
+            <Button disabled={path?.includes("/donate-book")}>
               Donate books <BookHeart />
             </Button>
           </Link>

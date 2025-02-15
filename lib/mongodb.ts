@@ -5,12 +5,14 @@ declare global {
 }
 
 async function connectToDb() {
-  if (!process.env.MONGODB_URI) throw new Error("Please define the MONGODB_URI environment variable");
+  const MONGODB_URI = process.env.NODE_ENV == "production" ? process.env.MONGODB_ATLAS_URI : process.env.MONGODB_URI;
+
+  if (!MONGODB_URI) throw new Error("Please define the MONGODB_URI environment variable");
 
   const existingConnection = global.mongooseConnection;
   if (existingConnection?.readyState == 1) return global.mongooseConnection;
 
-  const newConnection = await mongoose.connect(process.env.MONGODB_URI);
+  const newConnection = await mongoose.connect(MONGODB_URI);
   return (global.mongooseConnection = newConnection.connection);
 }
 

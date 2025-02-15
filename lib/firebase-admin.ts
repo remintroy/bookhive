@@ -1,10 +1,14 @@
-import { initializeApp, applicationDefault, getApps } from "firebase-admin/app";
+import { initializeApp, applicationDefault, getApps, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
 // initialize firebase
 export const initializeFirebase = () => {
   initializeApp({
-    credential: applicationDefault(),
+    credential: cert({
+      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+    }),
   });
 };
 

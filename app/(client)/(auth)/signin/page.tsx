@@ -8,11 +8,10 @@ import useAuthRedirect from "@/hooks/useAuthRedirect";
 import { app } from "@/lib/constants";
 import { signinWithGoogle, signinWithEmail } from "@/lib/firebase";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 
-type Props = {};
-
-const SignIn = (props: Props) => {
+const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +21,7 @@ const SignIn = (props: Props) => {
   const signInWithGoogleHandler = async () => {
     try {
       setLoading(true);
-      const userData = await signinWithGoogle();
+      await signinWithGoogle();
       redirect.redirectAfterAuth();
     } catch (err) {
       console.error("Google Sign-in Error", err);
@@ -36,9 +35,10 @@ const SignIn = (props: Props) => {
     setError("");
     setLoading(true);
     try {
-      const userData = await signinWithEmail(email, password);
+      await signinWithEmail(email, password);
       redirect.redirectAfterAuth();
-    } catch (err) {
+    } catch (error) {
+      console.error("Email Sign-in Error", error);
       setError("Invalid email or password");
     } finally {
       setLoading(false);
@@ -49,7 +49,7 @@ const SignIn = (props: Props) => {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/" className="flex items-center gap-2 font-medium">
+          <Link href="/" className="flex items-center gap-2 font-medium">
             <Image
               width={150}
               height={10}
@@ -64,7 +64,7 @@ const SignIn = (props: Props) => {
               className="dark:hidden"
               alt={`${app?.name} Logo`}
             />
-          </a>
+          </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
@@ -138,16 +138,16 @@ const SignIn = (props: Props) => {
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="/signup" className="underline">
+                <Link href="/signup" className="underline">
                   Sign up
-                </a>
+                </Link>
               </div>
             </form>
           </div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
-        <img
+        <Image
           src="https://picsum.photos/800/800"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"

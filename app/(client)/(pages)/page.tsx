@@ -1,8 +1,6 @@
 import React from "react";
 import ProductCard from "@/components/product-card";
 
-type Props = {};
-
 const books = [
   {
     id: 1,
@@ -48,7 +46,7 @@ const books = [
   },
 ];
 
-const page = (props: Props) => {
+const page = () => {
   return (
     <div className="container flex flex-col items-center m-auto">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

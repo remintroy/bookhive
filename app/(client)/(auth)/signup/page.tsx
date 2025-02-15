@@ -9,10 +9,9 @@ import { signinWithGoogle, signupWithEmail } from "@/lib/firebase";
 import Image from "next/image";
 import { useState } from "react";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
+import Link from "next/link";
 
-type Props = {};
-
-const SignUp = (props: Props) => {
+const SignUp = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
@@ -33,8 +32,9 @@ const SignUp = (props: Props) => {
     try {
       await signupWithEmail(form.email, form.password);
       redirect.redirectAfterAuth();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      setError(error.code?.split("/")[1]?.split("-")?.join(" "));
+      setError(error?.code?.split("/")[1]?.split("-")?.join(" "));
     } finally {
       setLoading(false);
     }
@@ -45,6 +45,7 @@ const SignUp = (props: Props) => {
       await signinWithGoogle();
       redirect.redirectAfterAuth();
     } catch (error) {
+      console.error("Google Sign-in Error", error);
       setError("Google sign-in failed. Please try again.");
     }
   };
@@ -53,7 +54,7 @@ const SignUp = (props: Props) => {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/" className="flex items-center gap-2 font-medium">
+          <Link href="/" className="flex items-center gap-2 font-medium">
             <Image
               width={150}
               height={10}
@@ -68,7 +69,7 @@ const SignUp = (props: Props) => {
               className="dark:hidden"
               alt={`${app?.name} Logo`}
             />
-          </a>
+          </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
@@ -149,16 +150,16 @@ const SignUp = (props: Props) => {
               </div>
               <div className="text-center text-sm">
                 Already have an account?{" "}
-                <a href="/signin" className="underline underline-offset-4">
+                <Link href="/signin" className="underline underline-offset-4">
                   Sign in
-                </a>
+                </Link>
               </div>
             </form>
           </div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
-        <img
+        <Image
           src="https://picsum.photos/800/800"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"

@@ -37,6 +37,7 @@ type AppGlobal = {
     tokensValidAfterTime: string;
     providerData: ProviderData[];
     loading: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setData: (data: any) => void;
     fetchData: () => Promise<boolean>;
   };
@@ -79,6 +80,7 @@ const appGlobal = create<AppGlobal>((set) => ({
         const data = await server.get("/api/metadata");
         set((state) => ({ metadata: { ...state.metadata, ...data.data, loggedIn: true } }));
         return true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error?.response?.status == 401) set((state) => ({ metadata: { ...state.metadata, loggedIn: false } }));
         return error?.response?.status != 401;

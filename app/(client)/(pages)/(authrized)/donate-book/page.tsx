@@ -1,13 +1,11 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 
-type Props = {};
-
-const DonateBook = (props: Props) => {
+const DonateBook = () => {
   return (
     <div className="container mx-auto max-w-2xl py-5 flex flex-col gap-5 relative">
       {/* <h1 className="text-xl text-center font-bold">Donate your book</h1> */}

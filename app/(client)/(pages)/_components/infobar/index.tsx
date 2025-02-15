@@ -92,7 +92,7 @@ const InfoBar = () => {
                   <Settings /> Manage account
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <BookHeart /> Donation's
+                  <BookHeart /> Donation&apos;s
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <ListOrdered /> Orders <DropdownMenuShortcut>1 upcoming</DropdownMenuShortcut>

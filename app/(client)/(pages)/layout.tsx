@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
-import Sidebar from "./_components/sidebar";
+import React, { Suspense, useEffect } from "react";
 import InfoBar from "./_components/infobar";
 import useMetadata from "@/hooks/useMetadata";
 import { auth } from "@/lib/firebase";
@@ -16,16 +15,18 @@ const Layout = ({ children }: Props) => {
       metadata.fetchData();
     });
     return () => unsubscribe();
-  }, []);
+  }, [metadata]);
 
   return (
-    <div className="flex h-screen relative">
-      {/* <Sidebar /> */}
-      <div className="w-full">
-        <InfoBar />
-        <div className="p-3">{children}</div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="flex h-screen relative">
+        {/* <Sidebar /> */}
+        <div className="w-full">
+          <InfoBar />
+          <div className="p-3">{children}</div>
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 };
 

@@ -6,15 +6,15 @@ import { useEffect } from "react";
 
 type Props = { children: React.ReactNode };
 
-const layout = (props: Props) => {
+const Layout = (props: Props) => {
   const metadata = useMetadata();
   const redirect = useAuthRedirect();
 
   useEffect(() => {
     if (!metadata?.loading && !metadata?.loggedIn) redirect.redirectToSignIn();
-  }, [metadata]);
+  }, [metadata, redirect]);
 
   return <div>{props?.children}</div>;
 };
 
-export default layout;
+export default Layout;

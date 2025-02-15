@@ -32,7 +32,7 @@ export const database = getDatabase(firebaseApp);
 if (typeof window !== "undefined") {
   isSupported().then((supported) => {
     if (supported) {
-      const analytics = getAnalytics(firebaseApp);
+      getAnalytics(firebaseApp);
     }
   });
 }

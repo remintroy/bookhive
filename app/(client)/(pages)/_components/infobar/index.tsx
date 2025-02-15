@@ -19,6 +19,7 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { BookHeart, ListOrdered, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const InfoBar = () => {
@@ -29,8 +30,6 @@ const InfoBar = () => {
     await signOut(auth);
     router.push("/signin");
   };
-
-  console.log(metadata)
 
   return (
     <>
@@ -46,9 +45,11 @@ const InfoBar = () => {
 
         <div className="w-full flex flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0">
           <Input className="max-w-[300px]" placeholder="Search books" />
-          <Button>
-            Donate books <BookHeart />
-          </Button>
+          <Link href="/donate-book">
+            <Button>
+              Donate books <BookHeart />
+            </Button>
+          </Link>
           <ModeToggle />
           {metadata?.loggedIn ? (
             <DropdownMenu>

@@ -1,7 +1,6 @@
 "use client";
 
 import { Alert, AlertTitle } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { app } from "@/lib/constants";
 import { signinWithGoogle, signupWithEmail } from "@/lib/firebase";
 import Image from "next/image";
 import { useState } from "react";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 
 type Props = {};
 
@@ -16,7 +16,7 @@ const SignUp = (props: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
-  const router = useRouter();
+  const redirect = useAuthRedirect();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -32,7 +32,7 @@ const SignUp = (props: Props) => {
     setLoading(true);
     try {
       await signupWithEmail(form.email, form.password);
-      router.push("/");
+      redirect.redirectAfterAuth();
     } catch (error: any) {
       setError(error.code?.split("/")[1]?.split("-")?.join(" "));
     } finally {
@@ -43,7 +43,7 @@ const SignUp = (props: Props) => {
   const googleSignIn = async () => {
     try {
       await signinWithGoogle();
-      router.push("/");
+      redirect.redirectAfterAuth();
     } catch (error) {
       setError("Google sign-in failed. Please try again.");
     }

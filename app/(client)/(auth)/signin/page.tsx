@@ -4,10 +4,10 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 import { app } from "@/lib/constants";
 import { signinWithGoogle, signinWithEmail } from "@/lib/firebase";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 type Props = {};
@@ -17,13 +17,13 @@ const SignIn = (props: Props) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
+  const redirect = useAuthRedirect();
 
   const signInWithGoogleHandler = async () => {
     try {
       setLoading(true);
       const userData = await signinWithGoogle();
-      router.push("/");
+      redirect.redirectAfterAuth();
     } catch (err) {
       console.error("Google Sign-in Error", err);
     } finally {
@@ -37,7 +37,7 @@ const SignIn = (props: Props) => {
     setLoading(true);
     try {
       const userData = await signinWithEmail(email, password);
-      router.push("/");
+      redirect.redirectAfterAuth();
     } catch (err) {
       setError("Invalid email or password");
     } finally {

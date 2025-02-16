@@ -15,7 +15,7 @@ const Layout = ({ children }: Props) => {
       metadata.fetchData();
     });
     return () => unsubscribe();
-  }, [metadata]);
+  }, [metadata.fetchData]);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

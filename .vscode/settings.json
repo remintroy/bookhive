@@ -8,6 +8,8 @@
         "firestore",
         "geospatial",
         "infobar",
-        "picsum"
+        "mastrovia",
+        "picsum",
+        "presigner"
     ]
 }

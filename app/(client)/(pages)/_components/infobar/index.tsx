@@ -57,7 +57,7 @@ const InfoBar = () => {
         <div className="w-full flex flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0">
           <Input className="max-w-[300px]" placeholder="Search books" />
           <Link href="/donate-book">
-            <Button disabled={path?.includes("/donate-book")}>
+            <Button disabled={path?.includes("/book/donate")}>
               Donate books <BookHeart />
             </Button>
           </Link>

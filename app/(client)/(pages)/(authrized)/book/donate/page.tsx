@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import server from "@/lib/axios";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Data = {
@@ -52,6 +54,21 @@ function generateGoogleMapEmbedUrl(lat: string, lng: string) {
 const DonateBook = () => {
   const [data, setData] = useState<Data>(defaultData);
   const [googleMap, setGoogleMap] = useState({ open: false, loading: false, url: "" });
+  const [saveBookLoading, setSaveBookLoading] = useState(false);
+  const route = useRouter();
+
+  const createBook = async () => {
+    setSaveBookLoading(true);
+    try {
+      const { data: responseSavedBookData } = await server.post("/api/books", data);
+      console.log(responseSavedBookData);
+      route.push(`/book/${responseSavedBookData?._id}`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSaveBookLoading(false);
+    }
+  };
 
   const getPlaceDataFromPincode = async (pincode: string) => {
     setGoogleMap({ ...googleMap, loading: true, open: false });
@@ -110,6 +127,7 @@ const DonateBook = () => {
               value={data?.title}
               onChange={(e) => setData((pre) => ({ ...pre, title: e.target?.value }))}
               placeholder="Book title"
+              disabled={saveBookLoading}
             />
           </div>
 
@@ -122,6 +140,7 @@ const DonateBook = () => {
               value={data?.author}
               onChange={(e) => setData((pre) => ({ ...pre, author: e.target?.value }))}
               placeholder="Author"
+              disabled={saveBookLoading}
             />
           </div>
         </div>
@@ -134,7 +153,11 @@ const DonateBook = () => {
             <Label htmlFor="title" className="text-xs text-muted-foreground">
               Book Condition *
             </Label>
-            <Select value={data?.condition} onValueChange={(value) => setData((pre) => ({ ...pre, condition: value }))}>
+            <Select
+              disabled={saveBookLoading}
+              value={data?.condition}
+              onValueChange={(value) => setData((pre) => ({ ...pre, condition: value }))}
+            >
               <SelectTrigger className="w-[180px] capitalize">
                 <SelectValue placeholder="Book Condition" />
               </SelectTrigger>
@@ -184,6 +207,7 @@ const DonateBook = () => {
                 onChange={(e) => setData((pre) => ({ ...pre, pincode: e?.target?.value }))}
                 type="number"
                 placeholder="Pincode"
+                disabled={saveBookLoading}
               />
             </div>
 
@@ -209,6 +233,7 @@ const DonateBook = () => {
             <Input
               type="text"
               value={data?.address2}
+              disabled={saveBookLoading}
               onChange={(e) => setData((pre) => ({ ...pre, address2: e?.target?.value }))}
               placeholder="Address (optional)"
             />
@@ -245,7 +270,9 @@ const DonateBook = () => {
               </div>
             </div>
           )}
-          <Button>Save and continue</Button>
+          <Button onClick={createBook} disabled={saveBookLoading}>
+            {saveBookLoading ? "Creating book..." : "Save and continue"}
+          </Button>
         </div>
       </Card>
     </div>

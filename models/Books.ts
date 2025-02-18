@@ -15,7 +15,7 @@ const BookSchema = new mongoose.Schema(
     location: {
       type: {
         type: String,
-        enum: ["Point"], // GeoJSON format
+        enum: ["Point"],
         default: "Point",
       },
       coordinates: {
@@ -25,11 +25,20 @@ const BookSchema = new mongoose.Schema(
           validator: function (val: number[]) {
             return val.length === 2 && val.every((num) => typeof num === "number");
           },
-          message: "Coordinates must be an array of two numbers [longitude, latitude].",
+          message: "Coordinates must be an array of two numbers [latitude, longitude].",
         },
+        // index: "2dsphere", // Geospatial index for efficient queries
       },
+      dataOrigin: { type: String, trim: true, default: "" },
+      placeId: { type: String, trim: true, default: "" },
+      googleMapUrl: { type: String, trim: true, default: "" },
+      boundingBox: { type: mongoose.Schema.Types.Mixed, default: null },
+      address: { type: String, trim: true, default: "" },
+      address2: { type: String, trim: true, default: "" },
+      addressResponse: { type: mongoose.Schema.Types.Mixed, default: null },
+      pincode: { type: String, trim: true, default: "" },
     },
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    seller: { type: String, required: true },
     images: [{ type: String, required: true }], // Array of image URLs
     isSold: { type: Boolean, default: false },
   },
@@ -37,6 +46,6 @@ const BookSchema = new mongoose.Schema(
 );
 
 // Index location for geospatial queries
-BookSchema.index({ location: "2dsphere" }, { sparse: true });
+BookSchema.index({ "location.coordinates": "2dsphere" }, { sparse: true });
 
 export default mongoose.models.Book || mongoose.model("Book", BookSchema);

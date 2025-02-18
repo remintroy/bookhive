@@ -3,16 +3,18 @@
 import { useRef, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
-import server from "@/lib/axios";
+import axios from "axios";
 
 type Props = {
   previewAspectRatio?: number;
+  setURL?: (url: string) => void;
 };
 
 const FileUpload = (props: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState<string>("");
   const [status, setStatus] = useState<"uploading" | "uploaded" | "idle" | "preparing">("idle");
+  const [uploadProgress, setUploadProgress] = useState("0");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -28,7 +30,7 @@ const FileUpload = (props: Props) => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const { data: uploadUrlResponse } = await server.post("/api/upload-url", { name: file.name, type: file.type });
+        const { data: uploadUrlResponse } = await axios.post("/api/upload-url", { name: file.name, type: file.type });
         const uploadURL = uploadUrlResponse?.url;
 
         setStatus("uploading");
@@ -37,17 +39,16 @@ const FileUpload = (props: Props) => {
           uploadURL
         )}`;
 
-        const { data: uploadFileResponse } = await server.put(workerURL, formData, {
+        await axios.put(workerURL, formData, {
           headers: { "Content-Type": "multipart/form-data" },
           onUploadProgress: (progressEvent) => {
             const percentComplete = (progressEvent.loaded / (progressEvent.total || 1)) * 100;
-            console.log(`Upload Progress: ${percentComplete.toFixed(2)}%`);
+            setUploadProgress(percentComplete.toFixed(0));
           },
         });
 
-        console.log(uploadFileResponse);
-
         setStatus("uploaded");
+        props?.setURL?.(`${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_URL}/${uploadUrlResponse?.key}`);
       };
 
       upload();
@@ -56,17 +57,23 @@ const FileUpload = (props: Props) => {
 
   return (
     <div
-      className="border border-dashed rounded-[var(--radius)] cursor-pointer relative"
+      className="border border-dashed rounded-[var(--radius)] overflow-hidden cursor-pointer relative"
       onClick={() => fileRef.current?.click()}
     >
       <input type="file" ref={fileRef} accept="image/*" className="hidden" onChange={handleFileChange} />
-      <AspectRatio ratio={props?.previewAspectRatio || 1 / 1} className="bg-muted rounded-md">
+      <AspectRatio ratio={props?.previewAspectRatio || 1 / 1} className="bg-muted relative overflow-hidden">
         {!image && (
           <small className="text-muted-foreground w-full h-full absolute flex items-center justify-center">
-            Click to upload {status}
+            Click to upload
           </small>
         )}
-        {image && <Image src={image} alt="product-pic" fill className="h-full w-full rounded-md object-cover" />}
+        {image && <Image src={image} alt="product-pic" fill className="h-full w-full object-cover" />}
+        {status != "uploaded" && status != "idle" && (
+          <>
+            <div className="absolute bg-muted/70 h-full w-full"></div>
+            <small className="absolute text-white bottom-4 text-center w-full">{uploadProgress}% uploaded</small>
+          </>
+        )}
       </AspectRatio>
     </div>
   );

@@ -40,14 +40,14 @@ const InfoBar = () => {
         <Link href={"/"} className="flex-shrink-0">
           <Image
             width={150}
-            height={10}
+            height={32}
             src="/Icon-large-dark.svg"
             className="hidden dark:block"
             alt={`${app?.name} Logo`}
           />
           <Image
             width={150}
-            height={10}
+            height={32}
             src="/Icon-large-light.svg"
             className="dark:hidden"
             alt={`${app?.name} Logo`}

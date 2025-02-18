@@ -81,6 +81,7 @@ const DonateBook = () => {
 
       setGoogleMap({ ...googleMap, loading: false, open: true, url: dataToSave.googleMapUrl as string });
     } catch (error) {
+      console.log(error);
       setGoogleMap({ ...googleMap, loading: false, open: false });
     }
   };

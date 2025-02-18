@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import server from "@/lib/axios";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -111,7 +112,7 @@ const DonateBook = () => {
   return (
     <div className="md:container mx-auto md:max-w-2xl md:py-5 flex flex-col gap-5 relative">
       {/* <h1 className="text-xl text-center font-bold">Donate your book</h1> */}
-      <div className="flex flex-col gap-3 px-3 md:p-0 md:border md:rounded-[var(--radius)]">
+      <div className="flex flex-col gap-3 px-1 md:p-0 md:border md:rounded-[var(--radius)]">
         <div className="p-5 flex flex-col gap-4">
           <div>
             <h2 className="text-lg font-bold">Basic details</h2>
@@ -196,47 +197,6 @@ const DonateBook = () => {
           <div>
             <h2 className="text-lg font-bold">Location & Address</h2>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="grid gap-2">
-              <Label htmlFor="author" className="text-xs text-muted-foreground">
-                Pincode *
-              </Label>
-              <Input
-                value={data?.pincode || ""}
-                onChange={(e) => setData((pre) => ({ ...pre, pincode: e?.target?.value }))}
-                type="number"
-                placeholder="Pincode"
-                disabled={saveBookLoading}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="author" className="text-xs text-muted-foreground">
-                Country
-              </Label>
-              <Input type="text" placeholder="Address" value={"India"} disabled />
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="author" className="text-xs text-muted-foreground">
-              Address
-            </Label>
-            <Input
-              type="text"
-              disabled
-              value={data?.address}
-              onChange={(e) => setData((pre) => ({ ...pre, address: e?.target?.value }))}
-              placeholder="Address"
-            />
-            <Input
-              type="text"
-              value={data?.address2}
-              disabled={saveBookLoading}
-              onChange={(e) => setData((pre) => ({ ...pre, address2: e?.target?.value }))}
-              placeholder="Address (optional)"
-            />
-          </div>
 
           {!googleMap?.open && (
             <div className="w-full h-[450px] bg-muted rounded-[var(--radius)] overflow-hidden">
@@ -269,7 +229,56 @@ const DonateBook = () => {
               </div>
             </div>
           )}
-          <Button onClick={createBook} disabled={saveBookLoading}>
+
+          <div className="grid md:grid-cols-2 gap-2">
+            <div className="grid gap-2">
+              <Label htmlFor="author" className="text-xs flex justify-between items-center text-muted-foreground">
+                <span>Pincode {"(India)"} *</span>
+              </Label>
+              <Input
+                value={data?.pincode || ""}
+                onChange={(e) => setData((pre) => ({ ...pre, pincode: e?.target?.value }))}
+                type="number"
+                placeholder="Pincode"
+                disabled={saveBookLoading}
+              />
+            </div>
+            <div className="grid gap-1">
+              <Label htmlFor="author" className="text-xs text-muted-foreground">
+                Address from pincode
+              </Label>
+              <Input
+                type="text"
+                disabled
+                value={data?.address}
+                onChange={(e) => setData((pre) => ({ ...pre, address: e?.target?.value }))}
+                placeholder="Address from pincode"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="author" className="text-xs text-muted-foreground">
+              Address
+            </Label>
+            <Textarea
+              value={data?.address2}
+              disabled={saveBookLoading}
+              onChange={(e) => setData((pre) => ({ ...pre, address2: e?.target?.value }))}
+              placeholder="Address (optional)"
+            />
+          </div>
+          <Button
+            onClick={createBook}
+            disabled={
+              saveBookLoading ||
+              !data?.title ||
+              !data?.author ||
+              !data?.address ||
+              !data?.images?.filter((e) => e)?.length ||
+              !data?.condition
+            }
+          >
             {saveBookLoading ? "Creating book..." : "Save and continue"}
           </Button>
         </div>

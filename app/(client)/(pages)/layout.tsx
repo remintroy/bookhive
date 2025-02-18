@@ -4,6 +4,7 @@ import React, { Suspense, useEffect } from "react";
 import InfoBar from "./_components/infobar";
 import useMetadata from "@/hooks/useMetadata";
 import { auth } from "@/lib/firebase";
+import Navbar from "./_components/navbar";
 
 type Props = { children: React.ReactNode };
 
@@ -23,7 +24,9 @@ const Layout = ({ children }: Props) => {
         {/* <Sidebar /> */}
         <div className="w-full">
           <InfoBar />
-          <div className="p-3">{children}</div>
+          {children}
+          <div className="h-[100px]"/>
+          <Navbar />
         </div>
       </div>
     </Suspense>

@@ -2,7 +2,6 @@
 
 import FileUpload from "@/components/file-upload";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -110,9 +109,9 @@ const DonateBook = () => {
   }, [data?.pincode]);
 
   return (
-    <div className="container mx-auto max-w-2xl py-5 flex flex-col gap-5 relative">
+    <div className="md:container mx-auto md:max-w-2xl md:py-5 flex flex-col gap-5 relative">
       {/* <h1 className="text-xl text-center font-bold">Donate your book</h1> */}
-      <Card className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 px-3 md:p-0 md:border md:rounded-[var(--radius)]">
         <div className="p-5 flex flex-col gap-4">
           <div>
             <h2 className="text-lg font-bold">Basic details</h2>
@@ -174,7 +173,7 @@ const DonateBook = () => {
             <Label htmlFor="title" className="text-xs text-muted-foreground">
               Book Images *
             </Label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-4  gap-2">
               {Array(4)
                 ?.fill(0)
                 ?.map((e, i) => {
@@ -274,7 +273,7 @@ const DonateBook = () => {
             {saveBookLoading ? "Creating book..." : "Save and continue"}
           </Button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

@@ -54,7 +54,19 @@ const InfoBar = () => {
           />
         </Link>
 
-        <div className="w-full flex flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0">
+        <div className="flex items-center justify-end gap-3 md:hidden">
+          <ModeToggle />
+          <Link href={"#"}>
+            <Avatar className="cursor-pointer">
+              <AvatarImage src={metadata?.photoURL} />
+              <AvatarFallback>
+                {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+        </div>
+
+        <div className="w-full flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0 hidden md:flex">
           <Input className="max-w-[300px]" placeholder="Search books" />
           <Link href="/book/donate">
             <Button disabled={path?.includes("/book/donate")}>

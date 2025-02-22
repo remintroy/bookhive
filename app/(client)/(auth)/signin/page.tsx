@@ -52,14 +52,14 @@ const SignIn = () => {
           <Link href="/" className="flex items-center gap-2 font-medium">
             <Image
               width={150}
-              height={10}
+              height={32}
               src="/Icon-large-dark.svg"
               className="hidden dark:block"
               alt={`${app?.name} Logo`}
             />
             <Image
               width={150}
-              height={10}
+              height={32}
               src="/Icon-large-light.svg"
               className="dark:hidden"
               alt={`${app?.name} Logo`}
@@ -150,6 +150,7 @@ const SignIn = () => {
         <Image
           src="https://picsum.photos/800/800"
           alt="Image"
+          fill
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>

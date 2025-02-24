@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
     // Get search query from URL parameters
     const { searchParams } = new URL(req.url);
-    const search = searchParams.get("search") || "";
+      const search = searchParams.get("search") || "";
 
     // Fetch books based on search query
     const categorys = await Books.aggregate([

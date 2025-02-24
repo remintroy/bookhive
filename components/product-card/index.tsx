@@ -43,7 +43,7 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location 
       {loading ? (
         <ProductCardLoading />
       ) : (
-        <div className="w-full sm:max-w-[160px] overflow-hidden rounded-[var(--radius)] flex flex-col gap-2 justify-between">
+        <div className="w-full sm:max-w-[160px] overflow-hidden flex flex-col gap-2 justify-between">
           <div className="flex flex-col gap-2">
             <div className="relative">
               <AspectRatio ratio={1 / 1} className="rounded-[var(--radius)] overflow-hidden border">

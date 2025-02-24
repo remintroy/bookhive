@@ -67,7 +67,7 @@ const FileUpload = (props: Props) => {
             Click to upload
           </small>
         )}
-        {image && <Image src={image} alt="product-pic" fill className="h-full w-full object-cover" />}
+        {image && <Image src={image} alt="product-pic" fill className="h-full w-full object-scale-down dark:bg-black bg-white" />}
         {status != "uploaded" && status != "idle" && (
           <>
             <div className="absolute bg-muted/70 h-full w-full"></div>

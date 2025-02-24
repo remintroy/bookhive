@@ -56,14 +56,51 @@ const InfoBar = () => {
 
         <div className="flex items-center justify-end gap-3 md:hidden">
           <ModeToggle />
-          <Link href={"#"}>
-            <Avatar className="cursor-pointer">
-              <AvatarImage src={metadata?.photoURL} />
-              <AvatarFallback>
-                {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
-              </AvatarFallback>
-            </Avatar>
-          </Link>
+          {metadata?.loggedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src={metadata?.photoURL} />
+                  <AvatarFallback>
+                    {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-[210px] p-5">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col items-center gap-2">
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src={metadata?.photoURL} />
+                      <AvatarFallback>
+                        {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-center">
+                      <p>{metadata?.displayName}</p>
+                      <small>{metadata.email}</small>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Settings /> Manage account
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <BookHeart /> Donation&apos;s
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <ListOrdered /> Orders <DropdownMenuShortcut>1 upcoming</DropdownMenuShortcut>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-red-400" onClick={handleLogout}>
+                  <LogOut />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button onClick={() => router.push("/signin")}>Login</Button>
+          )}
         </div>
 
         <div className="w-full flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0 hidden md:flex">

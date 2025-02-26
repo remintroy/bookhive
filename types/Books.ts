@@ -1,3 +1,5 @@
+import { User } from "firebase/auth";
+
 export default interface Book {
   _id?: string;
   title: string;
@@ -19,6 +21,7 @@ export default interface Book {
     pincode?: string;
   };
   seller: string;
+  sellerData?: User;
   images: string[];
   isSold?: boolean;
   createdAt?: string;

@@ -2,6 +2,7 @@ import connectToDb from "@/lib/mongodb";
 import { verifyAuth } from "@/middlewares/verify-auth";
 import Books from "@/models/Books";
 import { UserRecord } from "firebase-admin/auth";
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -66,8 +67,21 @@ export async function GET(req: NextRequest) {
 
       const showCreatedByMe = Boolean(searchParams.get("my-books") && user);
 
-      const category =
-        (searchParams?.get("category") || "")
+      let excludes: mongoose.Types.ObjectId[] = [];
+
+      try {
+        excludes =
+          (searchParams?.get("excludes") || "")
+            ?.trim?.()
+            ?.split?.(",")
+            ?.filter?.((e) => e)
+            ?.map((e) => new mongoose.Types.ObjectId(e)) || [];
+      } catch (error) {
+        console.log("Invalid excludes bookId", error);
+      }
+
+      const categorys =
+        (searchParams?.get("categorys") || "")
           ?.trim?.()
           ?.split?.(",")
           ?.filter?.((e) => e) || [];
@@ -90,9 +104,10 @@ export async function GET(req: NextRequest) {
       // Fetch all books from MongoDB
       const response = await Books.find({
         isSold: { $ne: true },
+        _id: { $nin: excludes },
         title: { $regex: search, $options: "i" },
         ...(lat && lon ? locationMatchQuery : {}),
-        ...(category?.length > 0 ? { categories: { $in: category } } : {}),
+        ...(categorys?.length > 0 ? { categories: { $in: categorys } } : {}),
         ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),
       })
         .skip((page - 1) * limit)

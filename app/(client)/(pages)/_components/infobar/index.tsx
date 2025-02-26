@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
 import useMetadata from "@/hooks/useMetadata";
 import { app } from "@/lib/constants";
@@ -22,6 +23,29 @@ import { BookHeart, ListOrdered, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
+export const InfoBarFallback = () => {
+  return (
+    <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[100] bg-[hsl(var(--background))] border-b">
+      <Link href={"/"} className="flex-shrink-0">
+        <Image
+          width={150}
+          height={32}
+          src="/Icon-large-dark.svg"
+          className="hidden dark:block"
+          alt={`${app?.name} Logo`}
+        />
+        <Image width={150} height={32} src="/Icon-large-light.svg" className="dark:hidden" alt={`${app?.name} Logo`} />
+      </Link>
+      <div className="flex items-center justify-end gap-3 md:hidden">
+        <ModeToggle />
+        <Avatar>
+          <Skeleton className="w-full h-full" />
+        </Avatar>
+      </div>
+    </div>
+  );
+};
 
 const InfoBar = () => {
   const metadata = useMetadata();
@@ -56,7 +80,11 @@ const InfoBar = () => {
 
         <div className="flex items-center justify-end gap-3 md:hidden">
           <ModeToggle />
-          {metadata?.loggedIn ? (
+          {!!metadata?.loading ? (
+            <Avatar>
+              <Skeleton className="w-full h-full" />
+            </Avatar>
+          ) : metadata?.loggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">
@@ -111,7 +139,11 @@ const InfoBar = () => {
             </Button>
           </Link>
           <ModeToggle />
-          {metadata?.loggedIn ? (
+          {metadata?.loading ? (
+            <Avatar>
+              <Skeleton className="w-full h-full" />
+            </Avatar>
+          ) : metadata?.loggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">

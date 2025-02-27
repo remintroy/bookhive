@@ -16,7 +16,7 @@ const Navbar = () => {
         <Link href={"/book/donate"}>
           <CirclePlus />
         </Link>
-        <Link href={"/"}>
+        <Link href={"/chat"}>
           <MessageCircle />
         </Link>
       </div>

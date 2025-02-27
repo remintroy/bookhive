@@ -3,7 +3,6 @@
 import ProductGrid from "@/components/product-grid";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
@@ -13,7 +12,7 @@ import server from "@/lib/axios";
 import Book from "@/types/Books";
 import { MessageSquareShare } from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const BookById = () => {
@@ -21,6 +20,7 @@ const BookById = () => {
   const [data, setData] = useState<Book | null>(null);
   const [loading, SetLoading] = useState(true);
   const metadata = useMetadata();
+  const route = useRouter();
 
   const fetchBookData = async () => {
     try {
@@ -86,23 +86,26 @@ const BookById = () => {
           ) : (
             <div className="flex flex-col gap-1">
               <h1 className="text-2xl font-bold">{data?.title}</h1>
-              <p className="">
+              <p>
                 By <span className="">{data?.author}</span>
               </p>
-              {data?.createdAt && (
-                <div className="text-muted-foreground text-sm">
-                  Posted on : {new Date(data?.createdAt).toDateString()}
-                </div>
-              )}
-              {data?.categories?.length !== 0 && (
-                <div className="flex flex-wrap flex-row gap-1 mt-2">
-                  {data?.categories?.map((e) => (
-                    <Badge variant={"outline"} key={e}>
-                      #{e}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <p>
+                Book condition is - <span className="capitalize">{data?.condition}</span>
+              </p>
+              <div className="flex flex-row items-center gap-2">
+                {data?.createdAt && (
+                  <div className="text-muted-foreground text-sm">{new Date(data?.createdAt).toDateString()}</div>
+                )}
+                {data?.categories?.length !== 0 && (
+                  <div className="flex flex-wrap flex-row gap-1">
+                    {data?.categories?.map((e) => (
+                      <span className="text-sm text-muted-foreground" key={e}>
+                        #{e}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -130,7 +133,7 @@ const BookById = () => {
                     )}
                     <div className="capitalize">{data?.sellerData?.displayName}</div>
                   </div>
-                  <Button>
+                  <Button onClick={() => route.push(`/chat/${data?.seller}`)}>
                     Chat with seller
                     <MessageSquareShare />
                   </Button>

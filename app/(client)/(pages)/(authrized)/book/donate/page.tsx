@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 type Data = {
   title?: string;
   author?: string;
+  description?: string;
   condition?: string;
   images?: string[];
   location?: {
@@ -140,6 +141,19 @@ const DonateBook = () => {
               value={data?.author}
               onChange={(e) => setData((pre) => ({ ...pre, author: e.target?.value }))}
               placeholder="Author"
+              disabled={saveBookLoading}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="author" className="text-xs text-muted-foreground">
+              Book description
+            </Label>
+            <Input
+              type="text"
+              value={data?.description}
+              onChange={(e) => setData((pre) => ({ ...pre, description: e.target?.value }))}
+              placeholder="Description"
               disabled={saveBookLoading}
             />
           </div>

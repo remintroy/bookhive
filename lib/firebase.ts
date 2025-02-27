@@ -22,11 +22,12 @@ const firebaseConfig = {
   messagingSenderId: "213107461626",
   appId: "1:213107461626:web:8c0c3ed414101e221a2843",
   measurementId: "G-SCNDB6D7ER",
+  databaseURL: "https://bookhive-7f498-default-rtdb.asia-southeast1.firebasedatabase.app",
 };
 
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp);
+export const auth = getAuth(firebaseApp); 
 export const database = getDatabase(firebaseApp);
 
 if (typeof window !== "undefined") {

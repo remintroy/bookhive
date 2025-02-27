@@ -183,7 +183,7 @@ const ChatWithUser = () => {
           <div
             onClick={() => {
               if (user?.id) {
-                route.push(user?.id);
+                route.push(`/chat/${user?.id}`);
                 setInitialMessageLoading(true);
               }
             }}

@@ -42,34 +42,44 @@ const BookById = () => {
     <div className="container max-w-7xl mx-auto p-5 md:py-10 flex flex-col gap-5">
       <div className="grid md:grid-cols-2 gap-4">
         <div className="relative flex flex-col gap-4">
-          <Carousel>
-            <CarouselContent>
-              {!data?.images?.length && (
-                <CarouselItem>
-                  <AspectRatio
-                    ratio={1 / 1}
-                    className="rounded-[var(--radius)] overflow-hidden border relative bg-muted flex items-center justify-center text-muted-foreground"
-                  >
-                    {loading ? "" : "No images available"}
-                  </AspectRatio>
-                </CarouselItem>
-              )}
-              {data?.images?.map((url) => (
-                <CarouselItem key={url}>
-                  <AspectRatio
-                    ratio={1 / 1}
-                    className="rounded-[var(--radius)] overflow-hidden border relative bg-muted"
-                  >
-                    {data && (
-                      <Image fill src={url} alt={data?.title} className="object-scale-down w-full h-full select-none" />
-                    )}
-                  </AspectRatio>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-5" />
-            <CarouselNext className="absolute right-5" />
-          </Carousel>
+          {loading && !data?.images?.length && (
+            <AspectRatio ratio={1 / 1} className="rounded-[var(--radius)] overflow-hidden relative">
+              <Skeleton className="absolute w-full h-full" />
+            </AspectRatio>
+          )}
+          {!loading && !data?.images?.length && (
+            <AspectRatio
+              ratio={1 / 1}
+              className="rounded-[var(--radius)] overflow-hidden relative flex items-center justify-center text-muted-foreground bg-muted"
+            >
+              No images
+            </AspectRatio>
+          )}
+          {data?.images?.length && (
+            <Carousel>
+              <CarouselContent>
+                {data?.images?.map((url) => (
+                  <CarouselItem key={url}>
+                    <AspectRatio
+                      ratio={1 / 1}
+                      className="rounded-[var(--radius)] overflow-hidden border relative bg-muted"
+                    >
+                      {data && (
+                        <Image
+                          fill
+                          src={url}
+                          alt={data?.title}
+                          className="object-scale-down w-full h-full select-none"
+                        />
+                      )}
+                    </AspectRatio>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-5" />
+              <CarouselNext className="absolute right-5" />
+            </Carousel>
+          )}
         </div>
         <div className="w-full bg-red flex flex-col gap-5 md:px-5">
           {loading ? (

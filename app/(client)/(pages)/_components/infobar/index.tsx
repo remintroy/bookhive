@@ -19,7 +19,7 @@ import useMetadata from "@/hooks/useMetadata";
 import { app } from "@/lib/constants";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { BookHeart, ListOrdered, LogOut, Settings } from "lucide-react";
+import { BookHeart, ListOrdered, LogOut, MessageSquareText, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -139,6 +139,11 @@ const InfoBar = () => {
             </Button>
           </Link>
           <ModeToggle />
+          <Link href={"/chat"}>
+            <Button variant="outline" size="icon">
+              <MessageSquareText className="h-[1.2rem] w-[1.2rem]" />
+            </Button>
+          </Link>
           {metadata?.loading ? (
             <Avatar>
               <Skeleton className="w-full h-full" />

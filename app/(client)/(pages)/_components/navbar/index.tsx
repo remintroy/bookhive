@@ -1,4 +1,4 @@
-import { CirclePlus, Home, MessageCircle, Search } from "lucide-react";
+import { CirclePlus, Home, MessageSquareText, Search } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -17,7 +17,7 @@ const Navbar = () => {
           <CirclePlus />
         </Link>
         <Link href={"/chat"}>
-          <MessageCircle />
+          <MessageSquareText />
         </Link>
       </div>
     </>

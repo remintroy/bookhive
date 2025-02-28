@@ -10,7 +10,7 @@ import server from "@/lib/axios";
 import { database } from "@/lib/firebase";
 import { UserRecord } from "firebase-admin/auth";
 import { onValue, orderByChild, orderByKey, query, ref, set } from "firebase/database";
-import { SendHorizonal } from "lucide-react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -154,10 +154,10 @@ const ChatWithUser = () => {
       setInitialChatLoading(false);
     });
     return () => unsubscribe(); // Cleanup listener on unmount
-  }, [metadata?.uid]);
+  }, [metadata?.uid, uid]);
 
   return (
-    <div className="absolute w-full top-16 bottom-1 left-0 right-0 flex flex-row max-sw-7xl m-auto border">
+    <div className="fixed w-full top-[4rem] bottom-1 left-0 right-0 flex flex-row max-sw-7xl m-auto border">
       <div
         className={`flex flex-col p-3 border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
           uid?.[0] ? "hidden" : "flex"
@@ -192,20 +192,14 @@ const ChatWithUser = () => {
               user?.id == uid && userData?.[user?.id as string] ? "bg-muted" : ""
             } cursor-pointer`}
           >
-            <Avatar>
+            <Avatar className="border">
               {user?.id && userData[user?.id] && <AvatarImage src={userData?.[user?.id]?.photoURL} />}
-              <AvatarFallback>
-                {userData?.[user?.id as string] ? userData?.[user?.id as string]?.displayName?.charAt?.(0) : "U"}
-              </AvatarFallback>
+              <AvatarFallback>{userData?.[user?.id as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
             </Avatar>
             <div className="flex flex-row items-start justify-between w-full">
               <div>
                 <div className="line-clamp-1">
-                  {user?.id && userData?.[user?.id] ? (
-                    userData?.[user?.id]?.displayName
-                  ) : (
-                    <Skeleton className="w-[100px] h-6" />
-                  )}
+                  {user?.id && userData?.[user?.id]?.displayName ? userData?.[user?.id]?.displayName : "User"}
                 </div>
                 <div className="line-clamp-1 text-sm text-muted-foreground">{user?.lastMessage}</div>
               </div>
@@ -221,13 +215,28 @@ const ChatWithUser = () => {
           </div>
         ))}
       </div>
-      <div className={`relative w-full  ${uid?.[0] ? "block" : "hidden"} md:block mb-20 md:mb-0`}>
-        <div className="w-full p-5 border-b flex flex-row items-center gap-3">
-          <Avatar>
+
+      <div
+        className={`relative w-full hidden md:${
+          uid?.[0] ? "hidden" : "flex"
+        } mb-20 md:mb-0 flex flex-col items-center justify-center`}
+      >
+        <Image
+          src="/images/cat-sitting.png"
+          alt="Illustration"
+          width={300}
+          height={300}
+          className="object-scale-down dark:invert"
+        />
+        <div className="text-2xl font-d">Open a chat to see messages</div>
+        <div className="flex flex-row gap-3 items-center text-muted-foreground">Chat with the seller with ease</div>
+      </div>
+
+      <div className={`relative w-full ${uid?.[0] ? "block" : "hidden"} mb-[4.2rem] md:mb-0 bg-muted/50`}>
+        <div className="w-full p-3 md:p-5 border-b flex flex-row items-center gap-3">
+          <Avatar className="border">
             {uid?.[0] && userData[uid?.[0]] && <AvatarImage src={userData?.[uid?.[0]]?.photoURL} />}
-            <AvatarFallback>
-              {uid?.[0] && userData?.[uid?.[0]] ? userData?.[uid?.[0]]?.displayName?.charAt?.(0) : "U"}
-            </AvatarFallback>
+            <AvatarFallback>{userData?.[uid?.[0] as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
           </Avatar>
           <div className="line-clamp-1">
             {uid?.[0] && userData?.[uid?.[0]] ? (
@@ -237,8 +246,8 @@ const ChatWithUser = () => {
             )}
           </div>
         </div>
-        <div className="w-full absolute top-20 left-0 right-0 bottom-20 overflow-x-hidden p-5 flex flex-col-reverse">
-          <div className="flex flex-col gap-2 justify-end">
+        <div className="w-full absolute top-[4rem] md:top-20 left-0 right-0 bottom-[3.5rem] md:bottom-20 overflow-x-hidden p-5 flex flex-col-reverse">
+          <div className="flex flex-col pt-3 md:pt-0 gap-2 justify-end">
             {!initialMessageLoading &&
               messages?.map((message) => {
                 return (
@@ -258,10 +267,11 @@ const ChatWithUser = () => {
             <div ref={messagesEndRef} className="absolute bottom-0" />
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full p-5 pb-3 md:pb-5 border-t flex flex-row gap-3">
+        <div className="absolute bottom-0 left-0 w-full p-2 md:p-5 pb-2 md:pb-5 border-t flex flex-row gap-3">
           <Input
+            className="border-none bg-inherit"
             ref={inputRef}
-            placeholder="Your message here"
+            placeholder="Type your message here"
             value={inputValue}
             onChange={(e) => setInputValue(e?.target?.value)}
             onKeyUp={(e) => {
@@ -271,7 +281,7 @@ const ChatWithUser = () => {
             }}
           />
           <Button onClick={() => sendMessage()} disabled={sendMessageLoading}>
-            Send <SendHorizonal />
+            Send
           </Button>
         </div>
       </div>

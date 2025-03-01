@@ -11,7 +11,7 @@ import { database } from "@/lib/firebase";
 import { UserRecord } from "firebase-admin/auth";
 import { onValue, orderByChild, orderByKey, query, ref, set } from "firebase/database";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 
 type Message = {
@@ -35,17 +35,17 @@ type ChatUser = {
 
 const ChatWithUser = () => {
   const uid = useParams().chat;
+  const [userUrlId, setUserUrlId] = useState<string | undefined>(uid?.[0]);
   const metadata = useMetadata();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [sendMessageLoading, setSendMessageLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const route = useRouter();
   const [userData, setUserData] = useState<{ [key: string]: UserRecord }>({});
 
   const [initialChatLoading, setInitialChatLoading] = useState(true);
-  const [initialMessageLoading, setInitialMessageLoading] = useState(false);
+  const [messagesLoading, setMessagesLoading] = useState(false);
 
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
 
@@ -104,12 +104,14 @@ const ChatWithUser = () => {
 
   useEffect(() => {
     const uid1 = metadata?.uid;
-    const uid2 = uid?.[0];
+    const uid2 = userUrlId;
     if (!uid1 || !uid2) return;
     const chatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`; // Ensures consistent ordering
 
     const messagesRef = ref(database, `messages/${chatId}`);
     const messageQuery = query(messagesRef, orderByKey());
+    fetchUserData(uid2);
+    setMessagesLoading(true);
 
     // Listen for real-time updates
     const unsubscribe = onValue(messageQuery, (snapshot) => {
@@ -124,13 +126,15 @@ const ChatWithUser = () => {
       } else {
         setMessages([]);
       }
+      setMessagesLoading(false);
     });
 
     return () => unsubscribe(); // Cleanup listener on unmount
-  }, [metadata?.uid, uid]);
+  }, [metadata?.uid, userUrlId]);
 
   useEffect(() => {
     if (!metadata?.uid) return;
+
     const messagesRef = ref(database, `chats/${metadata?.uid}`);
     const messageQuery = query(messagesRef, orderByChild("lastMessageAt"));
 
@@ -138,7 +142,7 @@ const ChatWithUser = () => {
     const unsubscribe = onValue(messageQuery, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
-        const messageList = Object.keys(data)
+        const usersList = Object.keys(data)
           .map((key) => {
             fetchUserData(key);
             return {
@@ -147,21 +151,21 @@ const ChatWithUser = () => {
             };
           })
           ?.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
-        setChatUsers(messageList);
+        setChatUsers(usersList);
       } else {
         setChatUsers([]);
       }
       setInitialChatLoading(false);
     });
     return () => unsubscribe(); // Cleanup listener on unmount
-  }, [metadata?.uid, uid]);
+  }, [metadata?.uid]);
 
   return (
     <div className="fixed w-full top-[4rem] bottom-1 left-0 right-0 flex flex-row max-sw-7xl m-auto border">
       <div
         className={`flex flex-col p-3 border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
-          uid?.[0] ? "hidden" : "flex"
-        } md:flex`}
+          userUrlId ? "hidden" : "flex"
+        } md:flex gap-1`}
       >
         {initialChatLoading &&
           Array(3)
@@ -179,18 +183,21 @@ const ChatWithUser = () => {
                 </div>
               </div>
             ))}
+        {!initialChatLoading && !chatUsers?.length && (
+          <div className="w-full h-full flex items-center justify-center">Send message to see users list</div>
+        )}
         {chatUsers?.map((user) => (
           <div
             onClick={() => {
               if (user?.id) {
-                route.push(`/chat/${user?.id}`);
-                setInitialMessageLoading(true);
+                window.history.pushState(null, "", `/chat/${user?.id}`);
+                setUserUrlId(user?.id);
               }
             }}
             key={user?.id}
             className={`flex flex-row p-3 gap-3 items-center hover:bg-muted ${
-              user?.id == uid && userData?.[user?.id as string] ? "bg-muted" : ""
-            } cursor-pointer`}
+              user?.id == userUrlId && userData?.[user?.id as string] ? "bg-muted" : ""
+            } cursor-pointer rounded-[var(--radius)]`}
           >
             <Avatar className="border">
               {user?.id && userData[user?.id] && <AvatarImage src={userData?.[user?.id]?.photoURL} />}
@@ -205,6 +212,11 @@ const ChatWithUser = () => {
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="text-xs text-muted-foreground">{new Date(user?.createdAt)?.toLocaleString()}</div>
+                {user?.id == metadata?.uid && (
+                  <div>
+                    <Badge>self message</Badge>
+                  </div>
+                )}
                 {user?.newMessagesCount && (
                   <div>
                     <Badge variant={"outline"}>{user?.newMessagesCount}</Badge>
@@ -218,7 +230,7 @@ const ChatWithUser = () => {
 
       <div
         className={`relative w-full hidden md:${
-          uid?.[0] ? "hidden" : "flex"
+          userUrlId ? "hidden" : "flex"
         } mb-20 md:mb-0 flex flex-col items-center justify-center`}
       >
         <Image
@@ -232,23 +244,17 @@ const ChatWithUser = () => {
         <div className="flex flex-row gap-3 items-center text-muted-foreground">Chat with the seller with ease</div>
       </div>
 
-      <div className={`relative w-full ${uid?.[0] ? "block" : "hidden"} mb-[4.2rem] md:mb-0 bg-muted/50`}>
-        <div className="w-full p-3 md:p-5 border-b flex flex-row items-center gap-3">
+      <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mb-[4.2rem] md:mb-0 bg-muted/50`}>
+        <div className="w-full p-3 md:p-3 border-b flex flex-row items-center gap-3">
           <Avatar className="border">
-            {uid?.[0] && userData[uid?.[0]] && <AvatarImage src={userData?.[uid?.[0]]?.photoURL} />}
-            <AvatarFallback>{userData?.[uid?.[0] as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
+            {userUrlId && userData[userUrlId]?.photoURL && <AvatarImage src={userData?.[userUrlId]?.photoURL} />}
+            <AvatarFallback>{userData?.[userUrlId as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
           </Avatar>
-          <div className="line-clamp-1">
-            {uid?.[0] && userData?.[uid?.[0]] ? (
-              userData?.[uid?.[0]]?.displayName
-            ) : (
-              <Skeleton className="w-[100px] h-5" />
-            )}
-          </div>
+          <div className="line-clamp-1">{userData?.[userUrlId as string]?.displayName || "User"}</div>
         </div>
-        <div className="w-full absolute top-[4rem] md:top-20 left-0 right-0 bottom-[3.5rem] md:bottom-20 overflow-x-hidden p-5 flex flex-col-reverse">
+        <div className="w-full absolute top-[4rem] left-0 right-0 bottom-[3.5rem] overflow-x-hidden p-5 flex flex-col-reverse">
           <div className="flex flex-col pt-3 md:pt-0 gap-2 justify-end">
-            {!initialMessageLoading &&
+            {!messagesLoading &&
               messages?.map((message) => {
                 return (
                   <div
@@ -267,7 +273,7 @@ const ChatWithUser = () => {
             <div ref={messagesEndRef} className="absolute bottom-0" />
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full p-2 md:p-5 pb-2 md:pb-5 border-t flex flex-row gap-3">
+        <div className="absolute bottom-0 left-0 w-full p-2 pb-2 border-t flex flex-row gap-3">
           <Input
             className="border-none bg-inherit"
             ref={inputRef}

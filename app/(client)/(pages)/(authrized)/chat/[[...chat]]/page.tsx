@@ -68,7 +68,7 @@ const ChatWithUser = () => {
     try {
       setSendMessageLoading(true);
       const uid1 = metadata?.uid;
-      const uid2 = uid?.[0];
+      const uid2 = userUrlId;
       if (!uid1 || !uid2) return;
       if (!message && !inputValue) return;
       const chatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`; // Ensures consistent ordering

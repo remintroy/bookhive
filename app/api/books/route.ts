@@ -80,6 +80,20 @@ export async function GET(req: NextRequest) {
         console.log("Invalid excludes bookId", error);
       }
 
+      let userIds: string[] = [];
+
+      try {
+        userIds =
+          searchParams
+            .get("userIds")
+            ?.trim()
+            ?.split(",")
+            .filter((e) => e)
+            ?.map((e) => e?.trim()) || [];
+      } catch (error) {
+        console.log(error);
+      }
+
       const categorys =
         (searchParams?.get("categorys") || "")
           ?.trim?.()
@@ -109,6 +123,7 @@ export async function GET(req: NextRequest) {
         ...(lat && lon ? locationMatchQuery : {}),
         ...(categorys?.length > 0 ? { categories: { $in: categorys } } : {}),
         ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),
+        ...(userIds?.length > 0 ? { seller: { $in: userIds } } : {}),
       })
         .skip((page - 1) * limit)
         .limit(limit);

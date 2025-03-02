@@ -12,7 +12,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
 import useMetadata from "@/hooks/useMetadata";
@@ -110,7 +109,7 @@ const InfoBar = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => metadata?.uid && router.push(`/user/${metadata?.uid}`)}>
                   <Settings /> Manage account
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -132,7 +131,7 @@ const InfoBar = () => {
         </div>
 
         <div className="w-full flex-row items-center justify-end gap-3 [&_*]:flex-shrink-0 hidden md:flex">
-          <Input className="max-w-[300px]" placeholder="Search books" />
+          {/* <Input className="max-w-[300px]" placeholder="Search books" /> */}
           <Link href="/book/donate">
             <Button disabled={path?.includes("/book/donate")}>
               Donate books <BookHeart />
@@ -174,7 +173,7 @@ const InfoBar = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => metadata?.uid && router.push(`/user/${metadata?.uid}`)}>
                   <Settings /> Manage account
                 </DropdownMenuItem>
                 <DropdownMenuItem>

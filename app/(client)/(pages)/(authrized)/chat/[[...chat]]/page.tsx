@@ -161,7 +161,7 @@ const ChatWithUser = () => {
   }, [metadata?.uid]);
 
   return (
-    <div className="fixed w-full top-[4rem] bottom-1 left-0 right-0 flex flex-row max-sw-7xl m-auto border">
+    <div className="fixed w-full top-[4rem] bottom-0 left-0 right-0 flex flex-row max-sw-7xl m-auto">
       <div
         className={`flex flex-col p-3 border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
           userUrlId ? "hidden" : "flex"

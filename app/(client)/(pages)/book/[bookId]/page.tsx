@@ -134,7 +134,7 @@ const BookById = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <div className="flex flex-row gap-3 items-center">
+                  <div className="flex flex-row gap-3 items-center cursor-pointer" onClick={() => route.push(`/user/${data?.seller}`)}>
                     {data?.sellerData?.photoURL && (
                       <Avatar>
                         <AvatarImage src={data?.sellerData?.photoURL} />

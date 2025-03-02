@@ -15,6 +15,7 @@ type Props = {
   limit?: number;
   showMyBooks?: boolean;
   excludes?: string[];
+  userIds?: string[];
   showLoading?: boolean;
 };
 
@@ -35,7 +36,8 @@ export default function ProductGrid(props?: Props) {
       if (props?.radius) searchQuery += `&radius=${props?.radius}`;
       if (props?.search) searchQuery += `&search=${props?.search}`;
       if (props?.limit) searchQuery += `&limit=${props?.limit}`;
-      if (!props?.categorys?.length && !options?.noCategory)
+      if (props?.userIds?.length) searchQuery += `&userIds=${props?.userIds?.join(",")}`;
+      if (props?.categorys?.filter?.((e) => e)?.length && !options?.noCategory && !props?.categorys?.includes("All"))
         searchQuery += `&categorys=${props?.categorys?.join(",") || ""}`;
       if (props?.excludes?.length) searchQuery += `&excludes=${props?.excludes?.join(",") || ""}`;
       const response = await server.get(`/api/books?${searchQuery}`);
@@ -49,7 +51,8 @@ export default function ProductGrid(props?: Props) {
 
   useEffect(() => {
     if (props?.showLoading) return;
-    if (!loading && books?.length == 0 && props?.categorys?.length !== 0) fetchBooks({ noCategory: true });
+    if (!loading && books?.length == 0 && props?.categorys?.includes?.("All") && !props?.search)
+      fetchBooks({ noCategory: true });
   }, [loading, books, props?.categorys, props?.showLoading]);
 
   useEffect(() => {
@@ -66,11 +69,16 @@ export default function ProductGrid(props?: Props) {
   ]);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 w-full">
+    <div className="relative grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 w-full">
       {(props?.showLoading || loading) &&
         Array(4)
           ?.fill(0)
           ?.map((e, i) => <ProductCardLoading key={e + i} />)}
+      {!props?.showLoading && !loading && !books?.length && (
+        <div className="absolute w-full py-10">
+          <h2 className="text-xl text-start">No books found.</h2>
+        </div>
+      )}
       {!props?.showLoading && !loading && books?.map((book) => <ProductCard key={book?._id} {...book} />)}
     </div>
   );

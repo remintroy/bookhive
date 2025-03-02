@@ -161,9 +161,9 @@ const ChatWithUser = () => {
   }, [metadata?.uid]);
 
   return (
-    <div className="fixed w-full top-[4rem] bottom-0 left-0 right-0 flex flex-row max-sw-7xl m-auto">
+    <div className="fixed w-full top-[4rem] border-t bottom-0 left-0 right-0 flex flex-row max-sw-7xl m-auto">
       <div
-        className={`flex flex-col p-3 border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
+        className={`flex flex-col p-3 md:border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
           userUrlId ? "hidden" : "flex"
         } md:flex gap-1`}
       >
@@ -244,7 +244,7 @@ const ChatWithUser = () => {
         <div className="flex flex-row gap-3 items-center text-muted-foreground">Chat with the seller with ease</div>
       </div>
 
-      <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mb-[4.2rem] md:mb-0 bg-muted/50`}>
+      <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mb-[2.2rem] md:mb-0 bg-muted/30`}>
         <div className="w-full p-3 md:p-3 border-b flex flex-row items-center gap-3">
           <Avatar className="border">
             {userUrlId && userData[userUrlId]?.photoURL && <AvatarImage src={userData?.[userUrlId]?.photoURL} />}

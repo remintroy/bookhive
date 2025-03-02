@@ -1,9 +1,11 @@
 "use client";
 
 import ProductGrid from "@/components/product-grid";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectContent, SelectItem, Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import server from "@/lib/axios";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type Category = {
@@ -31,9 +33,14 @@ const HomePage = () => {
 
   return (
     <div className="container flex flex-col items-center m-auto p-3 md:p-5 gap-3">
-      <div className="w-full py-24 flex flex-col md:gap-2">
+      <div className="w-full py-20 flex flex-col gap-3 rounded-[var(--radius)] bg-muted/0 md:bg-inherit md:border-none">
         <h1 className="text-5xl md:text-6xl text-center font-bold">BookHive</h1>
-        <p className="text-lg md:text-2xl text-center text-muted-foreground"><span className="text-[hsl(var(--primary))] italic">Discover</span> and share your favorite books</p>
+        <p className="text-lg md:text-2xl text-center text-muted-foreground">
+          <span className="text-[hsl(var(--primary))] italic">Discover</span> and share your favorite books
+        </p>
+        <Link href={"/book/donate"} className="w-max mx-auto">
+          <Button>Donate your book now</Button>
+        </Link>
       </div>
       <div className="flex flex-row gap-2 w-full">
         <Input

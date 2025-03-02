@@ -59,7 +59,7 @@ const InfoBar = () => {
 
   return (
     <>
-      <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[100] bg-[hsl(var(--background))] border-b">
+      <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[100] bg-[hsl(var(--background)/0.8)] backdrop-blur-md">
         <Link href={"/"} className="flex-shrink-0">
           <Image
             width={150}
@@ -79,6 +79,11 @@ const InfoBar = () => {
 
         <div className="flex items-center justify-end gap-3 md:hidden">
           <ModeToggle />
+          <Link href={"/chat"}>
+            <Button variant="outline" size="icon">
+              <MessageSquareText className="h-[1.2rem] w-[1.2rem]" />
+            </Button>
+          </Link>
           {!!metadata?.loading ? (
             <Avatar>
               <Skeleton className="w-full h-full" />

@@ -44,7 +44,7 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location 
       ) : (
         <div className="w-full overflow-hidden flex flex-col gap-2 justify-between">
           <Link href={`/book/${_id}`} className="h-full w-full">
-            <div className="flex flex-col gap-2 border p-3 rounded-[var(--radius)] h-full bg-muted/30">
+            <div className="flex flex-col gap-2 p-3 rounded-[var(--radius)] h-full bg-muted/30 hover:bg-muted/50">
               <div className="relative">
                 <AspectRatio ratio={1 / 1} className="rounded-[var(--radius)] overflow-hidden bg-muted">
                   <Image

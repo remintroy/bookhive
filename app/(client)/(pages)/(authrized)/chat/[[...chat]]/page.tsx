@@ -11,6 +11,7 @@ import { database } from "@/lib/firebase";
 import { UserRecord } from "firebase-admin/auth";
 import { onValue, orderByChild, orderByKey, query, ref, set } from "firebase/database";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -161,137 +162,145 @@ const ChatWithUser = () => {
   }, [metadata?.uid]);
 
   return (
-    <div className="fixed w-full top-[4rem] border-t bottom-0 left-0 right-0 flex flex-row max-sw-7xl m-auto">
-      <div
-        className={`flex flex-col p-3 md:border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
-          userUrlId ? "hidden" : "flex"
-        } md:flex gap-1`}
-      >
-        {initialChatLoading &&
-          Array(3)
-            ?.fill(0)
-            ?.map((e, i) => (
-              <div key={e + i} className={`flex flex-row p-3 gap-3 items-center hover:bg-muted`}>
-                <Avatar>
-                  <Skeleton className="w-full h-full" />
-                </Avatar>
-                <div className="flex flex-row items-start justify-between w-full">
-                  <div className="w-full flex flex-col gap-1">
-                    <Skeleton className="w-full h-7" />
-                    <Skeleton className="w-full h-4" />
-                  </div>
-                </div>
-              </div>
-            ))}
-        {!initialChatLoading && !chatUsers?.length && (
-          <div className="w-full h-full flex items-center justify-center">Send message to see users list</div>
-        )}
-        {chatUsers?.map((user) => (
-          <div
-            onClick={() => {
-              if (user?.id) {
-                window.history.pushState(null, "", `/chat/${user?.id}`);
-                setUserUrlId(user?.id);
-              }
-            }}
-            key={user?.id}
-            className={`flex flex-row p-3 gap-3 items-center hover:bg-muted ${
-              user?.id == userUrlId && userData?.[user?.id as string] ? "bg-muted" : ""
-            } cursor-pointer rounded-[var(--radius)]`}
-          >
-            <Avatar className="border">
-              {user?.id && userData[user?.id] && <AvatarImage src={userData?.[user?.id]?.photoURL} />}
-              <AvatarFallback>{userData?.[user?.id as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-row items-start justify-between w-full">
-              <div>
-                <div className="line-clamp-1">
-                  {user?.id && userData?.[user?.id]?.displayName ? userData?.[user?.id]?.displayName : "User"}
-                </div>
-                <div className="line-clamp-1 text-sm text-muted-foreground">{user?.lastMessage}</div>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <div className="text-xs text-muted-foreground">{new Date(user?.createdAt)?.toLocaleString()}</div>
-                {user?.id == metadata?.uid && (
-                  <div>
-                    <Badge>self message</Badge>
-                  </div>
-                )}
-                {user?.newMessagesCount && (
-                  <div>
-                    <Badge variant={"outline"}>{user?.newMessagesCount}</Badge>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div
-        className={`relative w-full hidden md:${
-          userUrlId ? "hidden" : "flex"
-        } mb-20 md:mb-0 flex flex-col items-center justify-center`}
-      >
-        <Image
-          src="/images/cat-sitting.png"
-          alt="Illustration"
-          width={300}
-          height={300}
-          className="object-scale-down dark:invert"
-        />
-        <div className="text-2xl font-d">Open a chat to see messages</div>
-        <div className="flex flex-row gap-3 items-center text-muted-foreground">Chat with the seller with ease</div>
-      </div>
-
-      <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mb-[2.2rem] md:mb-0 bg-muted/30`}>
-        <div className="w-full p-3 md:p-3 border-b flex flex-row items-center gap-3">
-          <Avatar className="border">
-            {userUrlId && userData[userUrlId]?.photoURL && <AvatarImage src={userData?.[userUrlId]?.photoURL} />}
-            <AvatarFallback>{userData?.[userUrlId as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
-          </Avatar>
-          <div className="line-clamp-1">{userData?.[userUrlId as string]?.displayName || "User"}</div>
-        </div>
-        <div className="w-full absolute top-[4rem] left-0 right-0 bottom-[3.5rem] overflow-x-hidden p-5 flex flex-col-reverse">
-          <div className="flex flex-col pt-3 md:pt-0 gap-2 justify-end">
-            {!messagesLoading &&
-              messages?.map((message) => {
-                return (
-                  <div
-                    key={message.id}
-                    className={`p-2 px-3 border rounded-[var(--radius)] w-max ${
-                      message.uid === metadata?.uid ? "self-end" : "self-start"
-                    } flex-shrink-0`}
-                  >
-                    <div className="line-clamp-1">{message.message}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(message?.createdAt)?.toLocaleTimeString()}
+    <>
+      <div className="fixed w-full top-[4rem] border-t bottom-7 left-0 right-0 flex flex-row max-sw-7xl m-auto">
+        <div
+          className={`flex flex-col p-3 md:border-r md:w-[50%] md:max-w-[450px] md:min-w-[300px] w-full ${
+            userUrlId ? "hidden" : "flex"
+          } md:flex gap-1`}
+        >
+          {initialChatLoading &&
+            Array(3)
+              ?.fill(0)
+              ?.map((e, i) => (
+                <div key={e + i} className={`flex flex-row p-3 gap-3 items-center hover:bg-muted`}>
+                  <Avatar>
+                    <Skeleton className="w-full h-full" />
+                  </Avatar>
+                  <div className="flex flex-row items-start justify-between w-full">
+                    <div className="w-full flex flex-col gap-1">
+                      <Skeleton className="w-full h-7" />
+                      <Skeleton className="w-full h-4" />
                     </div>
                   </div>
-                );
-              })}
-            <div ref={messagesEndRef} className="absolute bottom-0" />
+                </div>
+              ))}
+          {!initialChatLoading && !chatUsers?.length && (
+            <div className="w-full h-full flex items-center justify-center">Send message to see users list</div>
+          )}
+          {chatUsers?.map((user) => (
+            <div
+              onClick={() => {
+                if (user?.id) {
+                  window.history.pushState(null, "", `/chat/${user?.id}`);
+                  setUserUrlId(user?.id);
+                }
+              }}
+              key={user?.id}
+              className={`flex flex-row p-3 gap-3 items-center hover:bg-muted ${
+                user?.id == userUrlId && userData?.[user?.id as string] ? "bg-muted" : ""
+              } cursor-pointer rounded-[var(--radius)]`}
+            >
+              <Avatar className="border">
+                {user?.id && userData[user?.id] && <AvatarImage src={userData?.[user?.id]?.photoURL} />}
+                <AvatarFallback>{userData?.[user?.id as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-row items-start justify-between w-full">
+                <div>
+                  <div className="line-clamp-1">
+                    {user?.id && userData?.[user?.id]?.displayName ? userData?.[user?.id]?.displayName : "User"}
+                  </div>
+                  <div className="line-clamp-1 text-sm text-muted-foreground">{user?.lastMessage}</div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="text-xs text-muted-foreground">{new Date(user?.createdAt)?.toLocaleString()}</div>
+                  {user?.id == metadata?.uid && (
+                    <div>
+                      <Badge>self message</Badge>
+                    </div>
+                  )}
+                  {user?.newMessagesCount && (
+                    <div>
+                      <Badge variant={"outline"}>{user?.newMessagesCount}</Badge>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          className={`relative w-full hidden md:${
+            userUrlId ? "hidden" : "flex"
+          } mb-20 md:mb-0 flex flex-col items-center justify-center`}
+        >
+          <Image
+            src="/images/cat-sitting.png"
+            alt="Illustration"
+            width={300}
+            height={300}
+            className="object-scale-down dark:invert"
+          />
+          <div className="text-2xl font-d">Open a chat to see messages</div>
+          <div className="flex flex-row gap-3 items-center text-muted-foreground">Chat with the seller with ease</div>
+        </div>
+
+        <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mbd-[2.2rem] md:mb-0 bg-muted/30`}>
+          <div className="w-full p-3 md:p-3 border-b flex flex-row items-center gap-3">
+            <Avatar className="border">
+              {userUrlId && userData[userUrlId]?.photoURL && <AvatarImage src={userData?.[userUrlId]?.photoURL} />}
+              <AvatarFallback>{userData?.[userUrlId as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
+            </Avatar>
+            <div className="line-clamp-1">{userData?.[userUrlId as string]?.displayName || "User"}</div>
+          </div>
+          <div className="w-full absolute top-[4rem] left-0 right-0 bottom-[3.5rem] overflow-x-hidden p-5 flex flex-col-reverse">
+            <div className="flex flex-col pt-3 md:pt-0 gap-2 justify-end">
+              {!messagesLoading &&
+                messages?.map((message) => {
+                  return (
+                    <div
+                      key={message.id}
+                      className={`p-2 px-3 border rounded-[var(--radius)] w-max ${
+                        message.uid === metadata?.uid ? "self-end" : "self-start"
+                      } flex-shrink-0`}
+                    >
+                      <div className="line-clamp-1">{message.message}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(message?.createdAt)?.toLocaleTimeString()}
+                      </div>
+                    </div>
+                  );
+                })}
+              <div ref={messagesEndRef} className="absolute bottom-0" />
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 w-full p-2 pb-2 border-t flex flex-row gap-3">
+            <Input
+              className="border-none bg-inherit"
+              ref={inputRef}
+              placeholder="Type your message here"
+              value={inputValue}
+              onChange={(e) => setInputValue(e?.target?.value)}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  sendMessage();
+                }
+              }}
+            />
+            <Button onClick={() => sendMessage()} disabled={sendMessageLoading}>
+              Send
+            </Button>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full p-2 pb-2 border-t flex flex-row gap-3">
-          <Input
-            className="border-none bg-inherit"
-            ref={inputRef}
-            placeholder="Type your message here"
-            value={inputValue}
-            onChange={(e) => setInputValue(e?.target?.value)}
-            onKeyUp={(e) => {
-              if (e.key === "Enter") {
-                sendMessage();
-              }
-            }}
-          />
-          <Button onClick={() => sendMessage()} disabled={sendMessageLoading}>
-            Send
-          </Button>
-        </div>
       </div>
-    </div>
+      <div className="bottom-0 left-0 right-0 w-full p-1.5 border-t fixed flex flex-row gap-1 bg-muted/20 justify-center text-xs text-muted-foreground/50">
+        Powered by
+        <Link href="https://mastrovia.com" target="_blank" rel="noopener noreferrer">
+          Mastrovia
+        </Link>
+      </div>
+    </>
   );
 };
 

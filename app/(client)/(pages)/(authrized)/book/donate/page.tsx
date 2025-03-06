@@ -42,6 +42,7 @@ type Data = {
 const defaultData: Data = {
   title: "",
   author: "",
+  description: "",
   condition: "excellent",
   images: [],
   pincode: "",
@@ -102,7 +103,7 @@ const DonateBook = () => {
   const createBook = async () => {
     setSaveBookLoading(true);
     try {
-      const { data: responseSavedBookData } = await server.post("/api/books", { ...data, categories: category });
+      const { data: responseSavedBookData } = await server.post("/api/books", { ...data, categories: selectedCategory });
       console.log(responseSavedBookData);
       route.push(`/book/${responseSavedBookData?._id}`);
     } catch (error) {
@@ -185,7 +186,7 @@ const DonateBook = () => {
             </Label>
             <Input
               type="text"
-              value={data?.description}
+              value={data?.description || ""}
               onChange={(e) => setData((pre) => ({ ...pre, description: e.target?.value }))}
               placeholder="Description"
               disabled={saveBookLoading}

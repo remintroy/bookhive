@@ -1,15 +1,19 @@
 "use client";
 
 import FileUpload from "@/components/file-upload";
+import server from "@/lib/axios";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import server from "@/lib/axios";
-import axios from "axios";
+import { getPlaceDataFromPincode } from "@/utils";
+import { ChevronsUpDown, CircleX, Dot } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -18,39 +22,40 @@ type Data = {
   author?: string;
   description?: string;
   condition?: string;
-  images?: string[];
+  categories?: string[];
   location?: {
-    lat: string;
-    lon: string;
+    lat?: string;
+    lon?: string;
   };
-  pincode?: string;
+  dataOrigin?: string;
+  placeId?: string;
+  googleMapUrl?: string;
+  boundingBox?: string[];
   address?: string;
   address2?: string;
   addressResponse?: string;
-  googleMapUrl?: string;
-  boundingBox?: string[];
-  placeId?: string;
-  dataOrigin?: "OpenStreetMap";
+  pincode?: string;
+  images?: string[];
 };
 
 const defaultData: Data = {
   title: "",
   author: "",
-  condition: "",
+  condition: "excellent",
   images: [],
   pincode: "",
   address: "",
   address2: "",
   googleMapUrl: "",
+  categories: [],
 };
 
-function generateGoogleMapEmbedUrl(lat: string, lng: string) {
-  if (!lat || !lng) return "";
-  const baseURL = "https://www.google.com/maps/embed";
-  const encodedLocation = btoa(`${lat}, ${lng}`).replace(/=+$/, "");
-  // return `${baseURL}?pb=!1m13!1m8!1m3!1d3915.708867336044!2d${lng}!3d${lat}!3m2!1i1024!2i768!4f13.1!3m2!1m1!2z${encodedLocation}!5e0!3m2!1sen!2sin!4v${Date.now()}!5m2!1sen!2sin`;
-  return `${baseURL}?pb=!1m13!1m8!1m3!1d200000!2d${lng}!3d${lat}!3m2!1i1024!2i768!4f13.1!3m2!1m1!2z${encodedLocation}!5e0!3m2!1sen!2sin!4v${Date.now()}!5m2!1sen!2sin`;
-}
+type Category = {
+  category: string;
+  count: number;
+};
+
+const categoriesCatch: { [key: string]: Category[] } = {};
 
 const DonateBook = () => {
   const [data, setData] = useState<Data>(defaultData);
@@ -58,10 +63,45 @@ const DonateBook = () => {
   const [saveBookLoading, setSaveBookLoading] = useState(false);
   const route = useRouter();
 
+  const [category, setCategory] = useState<Category[]>([]);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+
+  const addSelectedCategory = (newCategory: string) => {
+    setSelectedCategory((prev) => {
+      if (prev?.length >= 5) return prev; // maximum categories limit
+      const categoryString = newCategory?.trim?.()?.toLowerCase?.() || "";
+      if (prev?.includes(categoryString)) return prev;
+      return [...prev, categoryString];
+    });
+  };
+
+  const removeSelectedCategory = (category: string) => {
+    const categoryString = category?.trim?.()?.toLowerCase?.() || "";
+    setSelectedCategory((prev) => {
+      return prev.filter((value) => value !== categoryString);
+    });
+  };
+
+  const fetchCategorys = async () => {
+    try {
+      if (categoriesCatch[categorySearch]) return setCategory(categoriesCatch[categorySearch]);
+      const { data } = await server.get(`/api/category?search=${categorySearch}`);
+      categoriesCatch[categorySearch] = data;
+      setCategory(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategorys();
+  }, [categorySearch]);
+
   const createBook = async () => {
     setSaveBookLoading(true);
     try {
-      const { data: responseSavedBookData } = await server.post("/api/books", data);
+      const { data: responseSavedBookData } = await server.post("/api/books", { ...data, categories: category });
       console.log(responseSavedBookData);
       route.push(`/book/${responseSavedBookData?._id}`);
     } catch (error) {
@@ -71,33 +111,26 @@ const DonateBook = () => {
     }
   };
 
-  const getPlaceDataFromPincode = async (pincode: string) => {
+  const fetchDataFromPincode = async (pincode: string) => {
     setGoogleMap({ ...googleMap, loading: true, open: false });
     try {
-      const url = `https://nominatim.openstreetmap.org/search?postalcode=${pincode}&country=India&format=json`;
+      const data = await getPlaceDataFromPincode(pincode);
 
-      const { data } = await axios.get(url);
+      setData((pre) => ({
+        ...pre,
+        location: data?.location,
+        address: data?.address,
+        addressResponse: data?.addressResponse,
+        boundingBox: data?.boundingBox,
+        placeId: data?.placeId,
+        dataOrigin: data?.dataOrigin,
+        googleMapUrl: data?.googleMapUrl,
+        pincode: data?.pincode,
+      }));
 
-      const placeData = data?.[0];
-      const dataToSave: Data = {
-        location: {
-          lat: placeData?.lat || "",
-          lon: placeData?.lon || "",
-        },
-        address: placeData?.display_name || "",
-        addressResponse: placeData || {},
-        boundingBox: placeData?.boundingbox || [],
-        placeId: placeData?.place_id || "",
-        dataOrigin: "OpenStreetMap",
-        googleMapUrl: generateGoogleMapEmbedUrl(placeData?.lat, placeData?.lon),
-        // pincode: pincode,
-      };
+      if (!data?.address) throw new Error("No place found");
 
-      setData((pre) => ({ ...pre, ...dataToSave }));
-
-      if (data?.length === 0) throw new Error("No place found");
-
-      setGoogleMap({ ...googleMap, loading: false, open: true, url: dataToSave.googleMapUrl as string });
+      setGoogleMap({ ...googleMap, loading: false, open: true, url: data?.googleMapUrl as string });
     } catch (error) {
       console.log(error);
       setGoogleMap({ ...googleMap, loading: false, open: false });
@@ -106,7 +139,7 @@ const DonateBook = () => {
 
   useEffect(() => {
     if (data?.pincode && data?.pincode?.length >= 6) {
-      getPlaceDataFromPincode(data.pincode);
+      fetchDataFromPincode(data.pincode);
     }
   }, [data?.pincode]);
 
@@ -170,19 +203,80 @@ const DonateBook = () => {
             <Select
               disabled={saveBookLoading}
               value={data?.condition}
+              defaultValue="excellent"
               onValueChange={(value) => setData((pre) => ({ ...pre, condition: value }))}
             >
-              <SelectTrigger className="w-[180px] capitalize">
+              <SelectTrigger className="w-[200px] capitalize">
                 <SelectValue placeholder="Book Condition" />
               </SelectTrigger>
               <SelectContent>
-                {["new", "excellent", "good", "fair", "old"].map((condition) => (
+                {["excellent", "good", "fair", "old"].map((condition) => (
                   <SelectItem key={condition} value={condition} className="capitalize">
                     {condition}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="author" className="text-xs text-muted-foreground">
+              Category of book
+            </Label>
+            {selectedCategory?.length !== 0 && (
+              <div className="flex flex-row gap-1 py-2">
+                {selectedCategory?.map((category) => (
+                  <Badge key={category} variant={"outline"} className="p-2 px-3 flex flex-row gap-2 capitalize">
+                    {category}
+                    <Button
+                      size={"icon"}
+                      variant={"secondary"}
+                      className="w-5 h-5"
+                      onClick={() => removeSelectedCategory(category)}
+                    >
+                      <CircleX />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" className="w-[200px] justify-between">
+                  Select categorys
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput
+                    value={categorySearch}
+                    onValueChange={(value) => setCategorySearch(value)}
+                    placeholder="Search category..."
+                    onKeyUp={(e) => e?.key == "Enter" && addSelectedCategory(categorySearch)}
+                  />
+                  <CommandList>
+                    <CommandEmpty className="p-4 text-sm text-center text-muted-foreground">
+                      No category found. <br /> press enter to add as new
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {category?.map((category) => (
+                        <CommandItem
+                          onSelect={(currentValue) => {
+                            addSelectedCategory(currentValue);
+                          }}
+                          key={category.category}
+                          value={category?.category}
+                        >
+                          <Dot className={"mr-2 h-4 w-4"} />
+                          {category?.category}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="title" className="text-xs text-muted-foreground">

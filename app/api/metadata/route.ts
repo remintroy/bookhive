@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
     // TODO: Only update the updated date files Rest need to be kept intact
     // TODO: Need to re structure the code after adding user details edit functionality
-    
+
     // Prepare user data to save
     const userDataToSave = {
       uid: userRecord.uid,
@@ -45,10 +45,20 @@ export async function GET(req: NextRequest) {
     // Connect to MongoDB
     await dbConnect();
 
-    // Find user by firebaseUID
-    await User.updateOne({ uid: userRecord?.uid }, { $set: userDataToSave }, { upsert: true });
+    const existingUser = await User.findOne({ uid: userRecord?.uid }, { _id: 0, passwordHash: 0, passwordSalt: 0 });
 
-    return NextResponse.json(userRecord, { status: 200 });
+    let dataToSave = {};
+
+    if (existingUser) {
+      dataToSave = { lastMetadataFetch: new Date(), photoURL: userDataToSave?.photoURL };
+    } else {
+      dataToSave = userDataToSave;
+    }
+
+    // Find user by firebaseUID
+    await User.updateOne({ uid: userRecord?.uid }, { $set: dataToSave }, { upsert: true });
+
+    return NextResponse.json(existingUser || userRecord, { status: 200 });
   } catch (error) {
     console.error("Auth error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

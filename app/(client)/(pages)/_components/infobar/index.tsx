@@ -57,9 +57,45 @@ const InfoBar = () => {
     redirect.redirectToSignIn();
   };
 
+  const Menu = () => {
+    return (
+      <DropdownMenuContent className="min-w-[210px] p-5">
+        <DropdownMenuLabel>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar className="cursor-pointer">
+              <AvatarImage src={metadata?.photoURL} />
+              <AvatarFallback>
+                {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-center">
+              <p>{metadata?.displayName}</p>
+              <small>{metadata.email}</small>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => metadata?.uid && router.push(`/user/${metadata?.uid}`)}>
+          <Settings /> My account
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <BookHeart /> My Books
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <ListOrdered /> Orders <DropdownMenuShortcut>1 upcoming</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="text-red-400" onClick={handleLogout}>
+          <LogOut />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    );
+  };
+
   return (
     <>
-      <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[100] bg-[hsl(var(--background)/0.8)] backdrop-blur-md">
+      <div className="flex flex-row p-3 justify-between items-center fixed w-full z-[50] bg-[hsl(var(--background)/0.8)] backdrop-blur-md">
         <Link href={"/"} className="flex-shrink-0">
           <Image
             width={150}
@@ -98,37 +134,7 @@ const InfoBar = () => {
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-[210px] p-5">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col items-center gap-2">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src={metadata?.photoURL} />
-                      <AvatarFallback>
-                        {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="text-center">
-                      <p>{metadata?.displayName}</p>
-                      <small>{metadata.email}</small>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => metadata?.uid && router.push(`/user/${metadata?.uid}`)}>
-                  <Settings /> Manage account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <BookHeart /> Donation&apos;s
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <ListOrdered /> Orders <DropdownMenuShortcut>1 upcoming</DropdownMenuShortcut>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-400" onClick={handleLogout}>
-                  <LogOut />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <Menu />
             </DropdownMenu>
           ) : (
             <Button onClick={() => router.push("/signin")}>Login</Button>
@@ -162,37 +168,7 @@ const InfoBar = () => {
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-[210px] p-5">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col items-center gap-2">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src={metadata?.photoURL} />
-                      <AvatarFallback>
-                        {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="text-center">
-                      <p>{metadata?.displayName}</p>
-                      <small>{metadata.email}</small>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => metadata?.uid && router.push(`/user/${metadata?.uid}`)}>
-                  <Settings /> Manage account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <BookHeart /> Donation&apos;s
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <ListOrdered /> Orders <DropdownMenuShortcut>1 upcoming</DropdownMenuShortcut>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-400" onClick={handleLogout}>
-                  <LogOut />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <Menu />
             </DropdownMenu>
           ) : (
             <Button onClick={() => router.push("/signin")}>Login</Button>

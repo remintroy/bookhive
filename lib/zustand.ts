@@ -20,6 +20,7 @@ type AppGlobal = {
     emailVerified: boolean;
     photoURL: string;
     photoURLCustom: string;
+    bio: string;
     disabled: boolean;
     provider: string;
     phoneNumber: string;
@@ -52,6 +53,7 @@ const appGlobal = create<AppGlobal>((set) => ({
     emailVerified: false,
     photoURL: "",
     photoURLCustom: "",
+    bio: "",
     provider: "",
     phoneNumber: "",
     role: "",

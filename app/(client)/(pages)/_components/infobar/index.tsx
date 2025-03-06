@@ -63,7 +63,7 @@ const InfoBar = () => {
         <DropdownMenuLabel>
           <div className="flex flex-col items-center gap-2">
             <Avatar className="cursor-pointer">
-              <AvatarImage src={metadata?.photoURL} />
+              <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
               <AvatarFallback>
                 {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
               </AvatarFallback>
@@ -128,7 +128,7 @@ const InfoBar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={metadata?.photoURL} />
+                  <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
                   <AvatarFallback>
                     {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
                   </AvatarFallback>
@@ -162,7 +162,7 @@ const InfoBar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={metadata?.photoURL} />
+                  <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
                   <AvatarFallback>
                     {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
                   </AvatarFallback>

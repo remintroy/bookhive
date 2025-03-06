@@ -4,15 +4,17 @@ import { useRef, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
 import axios from "axios";
+import server from "@/lib/axios";
 
 type Props = {
   previewAspectRatio?: number;
   setURL?: (url: string) => void;
+  imageURL?: string;
 };
 
 const FileUpload = (props: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [image, setImage] = useState<string>("");
+  const [image, setImage] = useState<string>(props?.imageURL || "");
   const [status, setStatus] = useState<"uploading" | "uploaded" | "idle" | "preparing">("idle");
   const [uploadProgress, setUploadProgress] = useState("0");
 
@@ -25,30 +27,38 @@ const FileUpload = (props: Props) => {
       setImage(fileURL);
 
       const upload = async () => {
-        setStatus("preparing");
+        try {
+          setStatus("preparing");
 
-        const formData = new FormData();
-        formData.append("file", file);
+          const formData = new FormData();
+          formData.append("file", file);
 
-        const { data: uploadUrlResponse } = await axios.post("/api/upload-url", { name: file.name, type: file.type });
-        const uploadURL = uploadUrlResponse?.url;
+          const { data: uploadUrlResponse } = await server.post("/api/upload-url", {
+            name: file.name,
+            type: file.type,
+          });
+          const uploadURL = uploadUrlResponse?.url;
 
-        setStatus("uploading");
+          setStatus("uploading");
 
-        const workerURL = `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_WORKER_URL}?signedUrl=${encodeURIComponent(
-          uploadURL
-        )}`;
+          const workerURL = `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_WORKER_URL}?signedUrl=${encodeURIComponent(
+            uploadURL
+          )}`;
 
-        await axios.put(workerURL, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (progressEvent) => {
-            const percentComplete = (progressEvent.loaded / (progressEvent.total || 1)) * 100;
-            setUploadProgress(percentComplete.toFixed(0));
-          },
-        });
+          await axios.put(workerURL, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+            onUploadProgress: (progressEvent) => {
+              const percentComplete = (progressEvent.loaded / (progressEvent.total || 1)) * 100;
+              setUploadProgress(percentComplete.toFixed(0));
+            },
+          });
 
-        setStatus("uploaded");
-        props?.setURL?.(`${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_URL}/${uploadUrlResponse?.key}`);
+          setStatus("uploaded");
+          props?.setURL?.(`${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_URL}/${uploadUrlResponse?.key}`);
+        } catch (error) {
+          setStatus("idle");
+          console.error(error);
+        }
       };
 
       upload();
@@ -67,7 +77,14 @@ const FileUpload = (props: Props) => {
             Click to upload
           </small>
         )}
-        {image && <Image src={image} alt="product-pic" fill className="h-full w-full object-scale-down dark:bg-black bg-white" />}
+        {image && (
+          <Image
+            src={image}
+            alt="product-pic"
+            fill
+            className="h-full w-full object-scale-down dark:bg-black bg-white"
+          />
+        )}
         {status != "uploaded" && status != "idle" && (
           <>
             <div className="absolute bg-muted/70 h-full w-full"></div>

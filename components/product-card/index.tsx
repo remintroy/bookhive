@@ -7,6 +7,18 @@ import { Suspense } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Skeleton } from "../ui/skeleton";
 import Book from "@/types/Books";
+import { EllipsisVertical, Pencil, Trash2 } from "lucide-react";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import useMetadata from "@/hooks/useMetadata";
+import { useRouter } from "next/navigation";
 
 interface BooksCard extends Book {
   loading?: boolean;
@@ -36,15 +48,18 @@ export const ProductCardLoading = () => {
   );
 };
 
-const ProductCard = ({ _id, title, author, condition, images, loading, location }: BooksCard) => {
+const ProductCard = ({ _id, title, author, condition, images, loading, location, seller }: BooksCard) => {
+  const metadata = useMetadata();
+  const router = useRouter();
+
   return (
     <Suspense fallback={<ProductCardLoading />}>
       {loading ? (
         <ProductCardLoading />
       ) : (
         <div className="w-full overflow-hidden flex flex-col gap-2 justify-between">
-          <Link href={`/book/${_id}`} className="h-full w-full">
-            <div className="flex flex-col gap-2 p-3 rounded-[var(--radius)] h-full bg-muted/30 hover:bg-muted/50">
+          <div className="flex flex-col gap-2 p-3 rounded-[var(--radius)] h-full bg-muted/30 hover:bg-muted/50 justify-start">
+            <Link href={`/book/${_id}`} className="w-full flex flex-col gap-2">
               <div className="relative">
                 <AspectRatio ratio={1 / 1} className="rounded-[var(--radius)] overflow-hidden bg-muted">
                   <Image
@@ -60,12 +75,38 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location 
                 </Badge>
               </div>
               <p className="text-[10px] text-muted-foreground italic line-clamp-1">{location?.address}</p>
-              <div className="space-y-1 w-full">
-                <h1 className="line-clamp-2">{title}</h1>
-                <p className="text-sm text-muted-foreground">{author}</p>
+            </Link>
+            <div className="w-full">
+              <div className="flex flex-row justify-between items-start">
+                <h1 className="line-clamp-2 max-w-[90%]">{title}</h1>
+                {seller == metadata?.uid && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        className="w-auto h-auto flex-shrink-0 p-1"
+                        variant={"ghost"}
+                        onClick={(e) => e?.stopPropagation()}
+                        size={"icon"}
+                      >
+                        <EllipsisVertical className="flex-shrink-0 w-5 h-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel>Manage book</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
+                        <Pencil /> Edit details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Trash2 /> Delete book
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
+              <p className="text-sm text-muted-foreground">{author}</p>
             </div>
-          </Link>
+          </div>
           {/* <div className="pt-0 flex justify-between items-center">
             <Button className="w-full" variant={"outline"} asChild>
               <Link href={`/book/${_id}`}>View Details</Link>

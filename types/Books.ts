@@ -1,5 +1,9 @@
 import { User } from "firebase/auth";
 
+export interface CustomUser extends User {
+  photoURLCustom?: string;
+}
+
 export default interface Book {
   _id?: string;
   title: string;
@@ -21,7 +25,7 @@ export default interface Book {
     pincode?: string;
   };
   seller: string;
-  sellerData?: User;
+  sellerData?: CustomUser;
   images: string[];
   isSold?: boolean;
   createdAt?: string;

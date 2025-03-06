@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import useMetadata from "@/hooks/useMetadata";
 import server from "@/lib/axios";
 import { database } from "@/lib/firebase";
-import { UserRecord } from "firebase-admin/auth";
+import { CustomUser } from "@/types/Books";
 import { onValue, orderByChild, orderByKey, query, ref, set } from "firebase/database";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,7 +43,7 @@ const ChatWithUser = () => {
   const [sendMessageLoading, setSendMessageLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [userData, setUserData] = useState<{ [key: string]: UserRecord }>({});
+  const [userData, setUserData] = useState<{ [key: string]: CustomUser }>({});
 
   const [initialChatLoading, setInitialChatLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
@@ -202,7 +202,9 @@ const ChatWithUser = () => {
               } cursor-pointer rounded-[var(--radius)]`}
             >
               <Avatar className="border">
-                {user?.id && userData[user?.id] && <AvatarImage src={userData?.[user?.id]?.photoURL} />}
+                {user?.id && (userData[user?.id]?.photoURL || userData[user?.id]?.photoURLCustom) && (
+                  <AvatarImage src={userData?.[user?.id]?.photoURLCustom || userData?.[user?.id]?.photoURL || ""} />
+                )}
                 <AvatarFallback>{userData?.[user?.id as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
               </Avatar>
               <div className="flex flex-row items-start justify-between w-full">
@@ -248,11 +250,15 @@ const ChatWithUser = () => {
 
         <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mbd-[2.2rem] md:mb-0 bg-muted/30`}>
           <div className="w-full p-3 md:p-3 border-b flex flex-row items-center gap-3">
-            <Avatar className="border">
-              {userUrlId && userData[userUrlId]?.photoURL && <AvatarImage src={userData?.[userUrlId]?.photoURL} />}
-              <AvatarFallback>{userData?.[userUrlId as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
-            </Avatar>
-            <div className="line-clamp-1">{userData?.[userUrlId as string]?.displayName || "User"}</div>
+            <Link href={`/user/${userUrlId}`} className="flex flex-row gap-3 w-max cursor-pointer items-center">
+              <Avatar className="border">
+                {userUrlId && (userData[userUrlId]?.photoURL || userData[userUrlId]?.photoURLCustom) && (
+                  <AvatarImage src={userData[userUrlId]?.photoURLCustom || userData?.[userUrlId]?.photoURL || ""} />
+                )}
+                <AvatarFallback>{userData?.[userUrlId as string]?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
+              </Avatar>
+              <div className="line-clamp-1">{userData?.[userUrlId as string]?.displayName || "User"}</div>
+            </Link>
           </div>
           <div className="w-full absolute top-[4rem] left-0 right-0 bottom-[3.5rem] overflow-x-hidden p-5 flex flex-col-reverse">
             <div className="flex flex-col pt-3 md:pt-0 gap-2 justify-end">

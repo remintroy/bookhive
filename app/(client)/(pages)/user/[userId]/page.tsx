@@ -31,6 +31,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getPlaceDataFromPincode, PincodeDataResponse } from "@/utils";
+import FileUpload from "@/components/file-upload";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Location {
   googleMapUrl: string;
@@ -70,32 +74,70 @@ interface UserUpdate {
   photoURLCustom: string;
   bio: string;
   phoneNumber: string;
+  pincode?: string;
+  location?: PincodeDataResponse;
 }
 
-const defaultDataValue = {
+const defaultDataValue: UserUpdate = {
   displayName: "",
   photoURL: "",
   photoURLCustom: "",
   bio: "",
   phoneNumber: "",
+  pincode: "",
 };
 
 const UserDetails = () => {
   const metadata = useMetadata();
   const router = useRouter();
   const [userData, setUserData] = useState<User | null>(null);
+  const [userDataLoading, setUserDataLoading] = useState(true);
   const userId = useParams().userId;
   const [data, setData] = useState<UserUpdate>(defaultDataValue);
   const [updateDataLoading, setUpdateDataLoading] = useState(false);
+  const [pincode, setPincode] = useState("");
+  const [m1Open, setM1Open] = useState(false);
+  const [m2Open, setM2Open] = useState(false);
+
+  const setImage = (url: string) => {
+    setData((prev) => ({ ...prev, photoURLCustom: url }));
+  };
+
+  const setPincodeValue = async (pincode: string) => {
+    try {
+      const data = await getPlaceDataFromPincode(pincode);
+      if (!data) {
+        setData((prev) => {
+          const copy = { ...prev };
+          delete copy.location;
+          copy.pincode = "";
+          return copy;
+        });
+      }
+      setData((prev) => ({ ...prev, location: data, pincode: data?.pincode }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchUserData = async () => {
+    setUserDataLoading(true);
     try {
       if (!userId) return;
       const { data } = await server.get(`/api/users/${userId}`);
       setUserData(data);
+      setData({
+        displayName: data?.displayName,
+        photoURL: data?.photoURL,
+        photoURLCustom: data?.photoURLCustom,
+        bio: data?.bio,
+        phoneNumber: data?.phoneNumber,
+      });
       return data;
     } catch (error) {
       console.log(error);
+    } finally {
+      setUserDataLoading(false);
     }
   };
 
@@ -107,6 +149,8 @@ const UserDetails = () => {
       await metadata?.fetchData();
       await fetchUserData();
       setData(responseData);
+      setM2Open(false);
+      setM1Open(false);
     } catch (error) {
       console.log(error);
     } finally {
@@ -115,11 +159,15 @@ const UserDetails = () => {
   };
 
   useEffect(() => {
+    if (pincode) setPincodeValue(pincode);
+  }, [pincode]);
+
+  useEffect(() => {
     if (metadata?.uid)
       setData({
         displayName: metadata.displayName,
         photoURL: metadata.photoURL,
-        photoURLCustom: "",
+        photoURLCustom: metadata?.photoURLCustom,
         bio: metadata.bio,
         phoneNumber: metadata.phoneNumber,
       });
@@ -134,13 +182,16 @@ const UserDetails = () => {
       <div className="grid grid-cols-1 gap-5 items-center">
         <div className="flex flex-row gap-5">
           <Avatar className="w-24 h-24">
-            {userData?.photoURL && <AvatarImage src={userData?.photoURL} />}
-            <AvatarFallback>{userData?.displayName?.charAt?.(0) || "U"}</AvatarFallback>
+            {userDataLoading && <Skeleton className="w-full h-full" />}
+            {!userDataLoading && (userData?.photoURL || userData?.photoURLCustom) && (
+              <AvatarImage src={userData?.photoURLCustom || userData?.photoURL} />
+            )}
+            {!userDataLoading && <AvatarFallback>{userData?.displayName?.charAt?.(0) || "U"}</AvatarFallback>}
           </Avatar>
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-bold">{userData?.displayName || "User"}</h2>
             {userData?.bio && <p>{userData?.bio}</p>}
-            {userData?.books?.totalBooks && (
+            {!!userData?.books?.totalBooks && (
               <p className="text-muted-foreground">
                 {userData?.books?.totalBooks - userData?.books?.totalSold} Books Available :{" "}
                 {userData?.books?.totalSold} Sold
@@ -159,7 +210,7 @@ const UserDetails = () => {
             {metadata?.uid == userId ? "Self message" : "Start chat"}
           </Button>
           {metadata?.uid == userId && (
-            <Dialog>
+            <Dialog open={m1Open} onOpenChange={(value) => setM1Open(value)}>
               <DialogTrigger className="hidden md:flex" asChild>
                 <Button className="" variant={"secondary"}>
                   <EditIcon /> Edit profile
@@ -171,6 +222,7 @@ const UserDetails = () => {
                   <DialogDescription>update & customize</DialogDescription>
                   <div className="flex flex-col gap-4 text-start py-5 px-3 md:px-0">
                     <div className="flex flex-col gap-2">
+                      <FileUpload setURL={setImage} imageURL={data?.photoURLCustom || data?.photoURL} />
                       <Label htmlFor="name-edit-input" className="text-muted-foreground">
                         Name
                       </Label>
@@ -182,7 +234,6 @@ const UserDetails = () => {
                         onChange={(e) => setData((pre) => ({ ...pre, displayName: e?.target?.value }))}
                       />
                     </div>
-
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="bio-edit-input" className="text-muted-foreground">
                         Bio
@@ -195,7 +246,6 @@ const UserDetails = () => {
                         onChange={(e) => setData((pre) => ({ ...pre, bio: e?.target?.value }))}
                       />
                     </div>
-
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="phone-edit-input" className="text-muted-foreground">
                         Phone number
@@ -206,6 +256,19 @@ const UserDetails = () => {
                         placeholder="Phone Number"
                         value={data?.phoneNumber || ""}
                         onChange={(e) => setData((pre) => ({ ...pre, phoneNumber: e?.target?.value }))}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="pincode-edit-input" className="text-muted-foreground">
+                        Pincode <small>{data?.location?.address ? `- ${data?.location?.address}` : "(address)"}</small>
+                      </Label>
+                      <Input
+                        type="number"
+                        disabled={updateDataLoading}
+                        id="pincode-edit-input"
+                        placeholder="Pincode"
+                        value={pincode}
+                        onChange={(e) => setPincode(e?.target?.value)}
                       />
                     </div>
                   </div>
@@ -225,18 +288,21 @@ const UserDetails = () => {
           )}
 
           {metadata?.uid == userId && (
-            <Drawer>
+            <Drawer open={m2Open} onOpenChange={(value) => setM2Open(value)}>
               <DrawerTrigger className="md:hidden w-full" asChild>
                 <Button className="w-full md:w-auto" variant={"secondary"}>
                   <EditIcon /> Edit profile
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="h-[80%]">
+              <DrawerContent className="h-[98%]">
                 <DrawerHeader>
                   <DrawerTitle>Edit your profile</DrawerTitle>
                   <DrawerDescription>update & customize</DrawerDescription>
+                </DrawerHeader>
+                <ScrollArea className="p-3 mx-3 bg-muted/50 rounded-[var(--radius)]">
                   <div className="flex flex-col gap-4 text-start py-5 px-3 md:px-0">
                     <div className="flex flex-col gap-2">
+                      <FileUpload setURL={setImage} imageURL={data?.photoURLCustom || data?.photoURL} />
                       <Label htmlFor="name-edit-input" className="text-muted-foreground">
                         Name
                       </Label>
@@ -274,8 +340,22 @@ const UserDetails = () => {
                         onChange={(e) => setData((pre) => ({ ...pre, phoneNumber: e?.target?.value }))}
                       />
                     </div>
+
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="pincode-edit-input" className="text-muted-foreground">
+                        Pincode <small>{data?.location?.address ? `- ${data?.location?.address}` : "(address)"}</small>
+                      </Label>
+                      <Input
+                        type="number"
+                        disabled={updateDataLoading}
+                        id="pincode-edit-input"
+                        placeholder="Pincode"
+                        value={pincode}
+                        onChange={(e) => setPincode(e?.target?.value)}
+                      />
+                    </div>
                   </div>
-                </DrawerHeader>
+                </ScrollArea>
                 <DrawerFooter className="mb-5">
                   <Button onClick={() => updateUserData()} disabled={updateDataLoading}>
                     Save changes

@@ -13,9 +13,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { getPlaceDataFromPincode } from "@/utils";
-import { ChevronsUpDown, CircleX, Dot } from "lucide-react";
+import { ChevronsUpDown, CircleX, Dot, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type Data = {
   title?: string;
@@ -218,12 +219,22 @@ const DonateBook = () => {
               </SelectContent>
             </Select>
           </div>
+
           <div className="grid gap-2">
             <Label htmlFor="author" className="text-xs text-muted-foreground">
               Category of book
             </Label>
+            {selectedCategory?.length >= 5 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Category limit</AlertTitle>
+                <AlertDescription className="text-muted-foreground">
+                  You can only add maximum of 5 categorys.
+                </AlertDescription>
+              </Alert>
+            )}
             {selectedCategory?.length !== 0 && (
-              <div className="flex flex-row gap-1 py-2">
+              <div className="flex flex-row gap-1 py-2 flex-wrap">
                 {selectedCategory?.map((category) => (
                   <Badge key={category} variant={"outline"} className="p-2 px-3 flex flex-row gap-2 capitalize">
                     {category}
@@ -240,43 +251,50 @@ const DonateBook = () => {
               </div>
             )}
 
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" className="w-[200px] justify-between">
-                  Select categorys
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput
-                    value={categorySearch}
-                    onValueChange={(value) => setCategorySearch(value)}
-                    placeholder="Search category..."
-                    onKeyUp={(e) => e?.key == "Enter" && addSelectedCategory(categorySearch)}
-                  />
-                  <CommandList>
-                    <CommandEmpty className="p-4 text-sm text-center text-muted-foreground">
-                      No category found. <br /> press enter to add as new
-                    </CommandEmpty>
-                    <CommandGroup>
-                      {category?.map((category) => (
-                        <CommandItem
-                          onSelect={(currentValue) => {
-                            addSelectedCategory(currentValue);
-                          }}
-                          key={category.category}
-                          value={category?.category}
-                        >
-                          <Dot className={"mr-2 h-4 w-4"} />
-                          {category?.category}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            {selectedCategory?.length < 5 && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" role="combobox" className="w-[200px] justify-between">
+                    Select categorys
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                  <Command>
+                    <CommandInput
+                      value={categorySearch}
+                      onValueChange={(value) => setCategorySearch(value)}
+                      placeholder="Search category..."
+                      onKeyUp={(e) => {
+                        if (e?.key == "Enter") {
+                          addSelectedCategory(categorySearch);
+                          setCategorySearch("");
+                        }
+                      }}
+                    />
+                    <CommandList>
+                      <CommandEmpty className="p-4 text-sm text-center text-muted-foreground">
+                        No category found. <br /> press enter to add as new
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {category?.map((category) => (
+                          <CommandItem
+                            onSelect={(currentValue) => {
+                              addSelectedCategory(currentValue);
+                            }}
+                            key={category.category}
+                            value={category?.category}
+                          >
+                            <Dot className={"mr-2 h-4 w-4"} />
+                            {category?.category}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="title" className="text-xs text-muted-foreground">

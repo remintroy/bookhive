@@ -33,6 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ book
                     uid: 1,
                     displayName: 1,
                     photoURL: 1,
+                    photoURLCustom: 1,
                     disabled: 1,
                   },
                 },

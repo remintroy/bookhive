@@ -8,6 +8,7 @@
         "firebasestorage",
         "firestore",
         "geospatial",
+        "googleusercontent",
         "Horizonal",
         "infobar",
         "mastrovia",

@@ -11,29 +11,16 @@ const UserSchema = new mongoose.Schema(
     photoURLCustom: { type: String, trim: true, default: "" },
     phoneNumber: { type: String, trim: true, default: "" },
     location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
+      location: {
+        lat: { type: String, trim: true, default: "" },
+        lon: { type: String, trim: true, default: "" },
       },
-      coordinates: {
-        type: [Number],
-        required: true,
-        validate: {
-          validator: function (val: number[]) {
-            return val.length === 2 && val.every((num) => typeof num === "number");
-          },
-          message: "Coordinates must be an array of two numbers [latitude, longitude].",
-        },
-        // index: "2dsphere", // Geospatial index for efficient queries
-      },
-      dataOrigin: { type: String, trim: true, default: "" },
-      placeId: { type: String, trim: true, default: "" },
-      googleMapUrl: { type: String, trim: true, default: "" },
-      boundingBox: { type: mongoose.Schema.Types.Mixed, default: null },
       address: { type: String, trim: true, default: "" },
-      address2: { type: String, trim: true, default: "" },
       addressResponse: { type: mongoose.Schema.Types.Mixed, default: null },
+      boundingBox: { type: mongoose.Schema.Types.Mixed, default: null },
+      placeId: { type: String, trim: true, default: "" },
+      dataOrigin: { type: String, trim: true, default: "" },
+      googleMapUrl: { type: String, trim: true, default: "" },
       pincode: { type: String, trim: true, default: "" },
     },
     disabled: { type: Boolean, default: false },

@@ -134,10 +134,13 @@ const BookById = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <div className="flex flex-row gap-3 items-center cursor-pointer" onClick={() => route.push(`/user/${data?.seller}`)}>
-                    {data?.sellerData?.photoURL && (
+                  <div
+                    className="flex flex-row gap-3 items-center cursor-pointer"
+                    onClick={() => route.push(`/user/${data?.seller}`)}
+                  >
+                    {(data?.sellerData?.photoURL || data?.sellerData?.photoURLCustom) && (
                       <Avatar>
-                        <AvatarImage src={data?.sellerData?.photoURL} />
+                        <AvatarImage src={data?.sellerData?.photoURLCustom || data?.sellerData?.photoURL || ""} />
                         <AvatarFallback>{data?.sellerData?.displayName?.charAt(0)}</AvatarFallback>
                       </Avatar>
                     )}

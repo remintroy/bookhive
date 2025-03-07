@@ -5,8 +5,10 @@ export async function POST(req: NextRequest) {
   try {
     const { name, type } = await req.json();
 
+    const customName = name?.toLowerCase?.()?.trim?.()?.replace(/\s+/g, "-");
+
     // Generate key
-    const key = `${Date.now()}-${name || "bookhive"}`;
+    const key = `${Date.now()}-${customName || "bookhive"}`;
 
     // Get signed URL
     const url = await getSignedUrlPUT({ fileName: key, fileType: type });

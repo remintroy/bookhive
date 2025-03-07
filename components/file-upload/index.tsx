@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
 import axios from "axios";
@@ -14,9 +14,13 @@ type Props = {
 
 const FileUpload = (props: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [image, setImage] = useState<string>(props?.imageURL || "");
+  const [image, setImage] = useState<string>("");
   const [status, setStatus] = useState<"uploading" | "uploaded" | "idle" | "preparing">("idle");
   const [uploadProgress, setUploadProgress] = useState("0");
+
+  useEffect(() => {
+    if (props?.imageURL) setImage(props?.imageURL);
+  }, [props?.imageURL]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

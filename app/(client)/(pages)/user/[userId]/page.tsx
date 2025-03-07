@@ -189,7 +189,7 @@ const UserDetails = () => {
             {!userDataLoading && <AvatarFallback>{userData?.displayName?.charAt?.(0) || "U"}</AvatarFallback>}
           </Avatar>
           <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-bold">{userData?.displayName || "User"}</h2>
+            {!userDataLoading && <h2 className="text-xl font-bold">{userData?.displayName || "User"}</h2>}
             {userData?.bio && <p>{userData?.bio}</p>}
             {!!userData?.books?.totalBooks && (
               <p className="text-muted-foreground">

@@ -7,7 +7,11 @@ import { Suspense } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Skeleton } from "../ui/skeleton";
 import Book from "@/types/Books";
-import { EllipsisVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  EllipsisVertical,
+  Pencil,
+  // Heart,CheckCircle, Share
+} from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -19,6 +23,7 @@ import {
 } from "../ui/dropdown-menu";
 import useMetadata from "@/hooks/useMetadata";
 import { useRouter } from "next/navigation";
+// import useBookApi from "@/hooks/useBookApi";
 
 interface BooksCard extends Book {
   loading?: boolean;
@@ -51,6 +56,15 @@ export const ProductCardLoading = () => {
 const ProductCard = ({ _id, title, author, condition, images, loading, location, seller }: BooksCard) => {
   const metadata = useMetadata();
   const router = useRouter();
+  // const bookApi = useBookApi();
+
+  // const handleMarkAsSold = async () => {
+  //   try {
+  //     await bookApi.updateStatus(_id as string, true);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <Suspense fallback={<ProductCardLoading />}>
@@ -79,8 +93,8 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location,
             <div className="w-full">
               <div className="flex flex-row justify-between items-start">
                 <h1 className="line-clamp-2 max-w-[90%]">{title}</h1>
-                {seller == metadata?.uid && (
-                  <DropdownMenu>
+                <DropdownMenu>
+                  {seller == metadata?.uid && (
                     <DropdownMenuTrigger asChild>
                       <Button
                         className="w-auto h-auto flex-shrink-0 p-1"
@@ -91,18 +105,28 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location,
                         <EllipsisVertical className="flex-shrink-0 w-5 h-5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuLabel>Manage book</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
-                        <Pencil /> Edit details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Trash2 /> Delete book
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                  )}
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Manage book</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {/* <DropdownMenuItem>
+                      <Share /> Share book
+                    </DropdownMenuItem> */}
+                    {/* <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
+                      <Heart /> Add to favorites
+                    </DropdownMenuItem> */}
+                    {seller == metadata?.uid && (
+                      <>
+                        <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
+                          <Pencil /> Edit details
+                        </DropdownMenuItem>
+                        {/* <DropdownMenuItem>
+                          <CheckCircle /> Mark as sold
+                        </DropdownMenuItem> */}
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <p className="text-sm text-muted-foreground">{author}</p>
             </div>

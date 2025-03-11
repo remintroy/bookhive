@@ -41,6 +41,7 @@ const BookSchema = new mongoose.Schema(
     seller: { type: String, required: true },
     images: [{ type: String, required: true }], // Array of image URLs
     isSold: { type: Boolean, default: false },
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

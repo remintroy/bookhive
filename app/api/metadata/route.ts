@@ -45,11 +45,87 @@ export async function GET(req: NextRequest) {
     // Connect to MongoDB
     await dbConnect();
 
-    const existingUser = await User.findOne({ uid: userRecord?.uid }, { _id: 0, passwordHash: 0, passwordSalt: 0 });
+    const existingUser = await User.aggregate([
+      { $match: { uid: userRecord?.uid } },
+      {
+        $lookup: {
+          from: "books",
+          as: "books",
+          let: { uid: "$uid" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$$uid", "$seller"],
+                },
+                deleted: { $ne: true },
+              },
+            },
+            {
+              $facet: {
+                books: [
+                  {
+                    $project: {
+                      _id: 1,
+                      title: 1,
+                      author: 1,
+                      description: 1,
+                      categories: 1,
+                      condition: 1,
+                      isSold: 1,
+                      location: {
+                        address: 1,
+                        googleMapUrl: 1,
+                      },
+                    },
+                  },
+                ],
+                totalBooks: [
+                  {
+                    $count: "count",
+                  },
+                ],
+                totalSold: [
+                  {
+                    $match: {
+                      isSold: true,
+                    },
+                  },
+                  {
+                    $count: "count",
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                totalBooks: {
+                  $ifNull: [{ $arrayElemAt: ["$totalBooks.count", 0] }, 0],
+                },
+                totalSold: {
+                  $ifNull: [{ $arrayElemAt: ["$totalSold.count", 0] }, 0],
+                },
+                books: "$books",
+              },
+            },
+          ],
+        },
+      },
+      {
+        $set: { books: { $arrayElemAt: ["$books", 0] } },
+      },
+      {
+        $project: {
+          _id: 0,
+          passwordHash: 0,
+          passwordSalt: 0,
+        },
+      },
+    ]);
 
     let dataToSave = {};
 
-    if (existingUser) {
+    if (existingUser?.[0]) {
       dataToSave = { lastMetadataFetch: new Date(), photoURL: userDataToSave?.photoURL };
     } else {
       dataToSave = userDataToSave;
@@ -58,7 +134,12 @@ export async function GET(req: NextRequest) {
     // Find user by firebaseUID
     await User.updateOne({ uid: userRecord?.uid }, { $set: dataToSave }, { upsert: true });
 
-    return NextResponse.json(existingUser || userRecord, { status: 200 });
+    return NextResponse.json(
+      existingUser?.[0] || { ...userRecord, books: { totalSold: 0, totalBooks: 0, books: [] } },
+      {
+        status: 200,
+      }
+    );
   } catch (error) {
     console.error("Auth error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

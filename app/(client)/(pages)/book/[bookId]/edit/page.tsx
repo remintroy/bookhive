@@ -2,6 +2,17 @@
 
 import FileUpload from "@/components/file-upload";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -12,10 +23,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import useBookApi from "@/hooks/useBookApi";
+import useMetadata from "@/hooks/useMetadata";
 import server from "@/lib/axios";
 import Book from "@/types/Books";
 import { getPlaceDataFromPincode } from "@/utils";
-import { ChevronsUpDown, CircleX, Dot, Info } from "lucide-react";
+import { ChevronsUpDown, CircleX, Dot, Info, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -61,6 +74,8 @@ const categoriesCatch: { [key: string]: Category[] } = {};
 const EditBookPage = () => {
   const { bookId } = useParams();
   const router = useRouter();
+  const bookApi = useBookApi();
+  const metadata = useMetadata();
 
   const [data, setData] = useState<CustomBook>(defaultData);
   const [loading, setLoading] = useState(true);
@@ -105,6 +120,16 @@ const EditBookPage = () => {
     });
   };
 
+  const deleteBook = async () => {
+    try {
+      await server.delete(`/api/books/${bookId}`);
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+      // alert("Failed to delete book.");
+    }
+  };
+
   const fetchCategorys = async () => {
     try {
       if (categoriesCatch[categorySearchInput]) return setCategorys(categoriesCatch[categorySearchInput]);
@@ -131,7 +156,7 @@ const EditBookPage = () => {
   const saveDetails = async () => {
     setSaveBookLoading(true);
     try {
-      await server.put(`/api/books/${bookId}`, data);
+      await bookApi.updateBook(bookId as string, data);
       router.push(`/book/${bookId}`);
     } catch (error) {
       console.log(error);
@@ -152,6 +177,10 @@ const EditBookPage = () => {
   useEffect(() => {
     fetchBookData();
   }, []);
+
+  useEffect(() => {
+    if (data?.seller && data?.seller !== metadata?.uid) router.push(`/`);
+  }, [data, metadata]);
 
   return (
     <div className="md:container mx-auto md:max-w-2xl md:py-5 flex flex-col gap-5 relative">
@@ -414,20 +443,53 @@ const EditBookPage = () => {
                   placeholder="Address (optional)"
                 />
               </div>
-              <Button
-                onClick={saveDetails}
-                disabled={
-                  saveBookLoading ||
-                  loading ||
-                  !data?.title ||
-                  !data?.author ||
-                  !data?.location?.address ||
-                  !data?.images?.filter((e) => e)?.length ||
-                  !data?.condition
-                }
-              >
-                {saveBookLoading ? "Updating Details..." : "Save and continue"}
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <Button
+                  onClick={saveDetails}
+                  disabled={
+                    saveBookLoading ||
+                    loading ||
+                    !data?.title ||
+                    !data?.author ||
+                    !data?.location?.address ||
+                    !data?.images?.filter((e) => e)?.length ||
+                    !data?.condition
+                  }
+                >
+                  {saveBookLoading ? "Updating Details..." : "Save and continue"}
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant={"destructive"}
+                      disabled={
+                        saveBookLoading ||
+                        loading ||
+                        !data?.title ||
+                        !data?.author ||
+                        !data?.location?.address ||
+                        !data?.images?.filter((e) => e)?.length ||
+                        !data?.condition
+                      }
+                    >
+                      <Trash /> {saveBookLoading ? "Updating Details..." : "Delete book"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="w-fit min-w-[350px] md:w-auto">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your book and remove your data from
+                        our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={deleteBook}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </div>
         </div>

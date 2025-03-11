@@ -3,22 +3,10 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import useAuthRedirect from "@/hooks/useAuthRedirect";
 import useMetadata from "@/hooks/useMetadata";
 import { app } from "@/lib/constants";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
-import { BookHeart, ListOrdered, LogOut, MessageSquareText, Settings } from "lucide-react";
+import { BookHeart, MessageSquareText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,49 +37,7 @@ export const InfoBarFallback = () => {
 const InfoBar = () => {
   const metadata = useMetadata();
   const router = useRouter();
-  const redirect = useAuthRedirect();
   const path = usePathname();
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    redirect.redirectToSignIn();
-  };
-
-  const Menu = () => {
-    return (
-      <DropdownMenuContent className="min-w-[210px] p-5">
-        <DropdownMenuLabel>
-          <div className="flex flex-col items-center gap-2">
-            <Avatar className="cursor-pointer">
-              <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
-              <AvatarFallback>
-                {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}{" "}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-center">
-              <p>{metadata?.displayName}</p>
-              <small>{metadata.email}</small>
-            </div>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => metadata?.uid && router.push(`/user/${metadata?.uid}`)}>
-          <Settings /> My account
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <BookHeart /> My Books
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <ListOrdered /> Orders <DropdownMenuShortcut>1 upcoming</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-400" onClick={handleLogout}>
-          <LogOut />
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    );
-  };
 
   return (
     <>
@@ -125,17 +71,12 @@ const InfoBar = () => {
               <Skeleton className="w-full h-full" />
             </Avatar>
           ) : metadata?.loggedIn ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
-                  <AvatarFallback>
-                    {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <Menu />
-            </DropdownMenu>
+            <Avatar className="cursor-pointer" onClick={() => router.push("/my-account")}>
+              <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
+              <AvatarFallback>
+                {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
+              </AvatarFallback>
+            </Avatar>
           ) : (
             <Button onClick={() => router.push("/signin")}>Login</Button>
           )}
@@ -159,17 +100,12 @@ const InfoBar = () => {
               <Skeleton className="w-full h-full" />
             </Avatar>
           ) : metadata?.loggedIn ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
-                  <AvatarFallback>
-                    {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <Menu />
-            </DropdownMenu>
+            <Avatar className="cursor-pointer" onClick={() => router.push("/my-account")}>
+              <AvatarImage src={metadata?.photoURLCustom || metadata?.photoURL} />
+              <AvatarFallback>
+                {metadata?.displayName?.charAt(0) || metadata?.email?.charAt?.(0)?.toUpperCase?.()}
+              </AvatarFallback>
+            </Avatar>
           ) : (
             <Button onClick={() => router.push("/signin")}>Login</Button>
           )}

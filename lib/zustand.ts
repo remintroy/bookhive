@@ -3,13 +3,43 @@
 import { create } from "zustand";
 import server from "./axios";
 
-type ProviderData = {
+export type ProviderData = {
   uid: string;
   displayName: string;
   email: string;
   photoURL: string;
   providerId: string;
 };
+
+export interface LocationData {
+  location?: {
+    lat: string;
+    lon: string;
+  };
+  address: string;
+  addressResponse: string; // Use a specific type if possible instead of `any`
+  boundingBox: string[]; // Use a specific type if possible
+  placeId: string;
+  dataOrigin: string;
+  googleMapUrl: string;
+  pincode: string;
+}
+
+export interface Book {
+  _id: string;
+  title: string;
+  author: string;
+  description: string;
+  condition: "new" | "excellent" | "good" | "fair";
+  categories: string[];
+  location: Location;
+}
+
+export interface BooksCollection {
+  totalBooks: number;
+  totalSold: number;
+  books: Book[];
+}
 
 type AppGlobal = {
   metadata: {
@@ -30,6 +60,8 @@ type AppGlobal = {
     accessToken: string;
     updatedAt: string;
     createdAt: string;
+    books: BooksCollection;
+    location?: LocationData;
     metadata: {
       lastSignInTime: string;
       creationTime: string;
@@ -63,6 +95,11 @@ const appGlobal = create<AppGlobal>((set) => ({
     updatedAt: "",
     createdAt: "",
     loading: true,
+    books: {
+      totalBooks: 0,
+      totalSold: 0,
+      books: [],
+    },
     metadata: {
       lastSignInTime: "",
       creationTime: "",

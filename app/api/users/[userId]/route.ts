@@ -28,6 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
                 $expr: {
                   $eq: ["$$uid", "$seller"],
                 },
+                deleted: { $ne: true },
               },
             },
             {
@@ -41,6 +42,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
                       description: 1,
                       categories: 1,
                       condition: 1,
+                      isSold: 1,
                       location: {
                         address: 1,
                         googleMapUrl: 1,

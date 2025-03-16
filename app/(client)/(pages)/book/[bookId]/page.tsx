@@ -126,7 +126,9 @@ const BookById = () => {
           {data?.seller == metadata?.uid && (
             <div className="flex flex-col gap-4">
               <Separator />
-              <Alert className="bg-muted">This books is claimed and not available.</Alert>
+              {data?.bookStatus === "claimed" && (
+                <Alert className="bg-muted">This books is claimed and not available.</Alert>
+              )}
               <Button onClick={() => setOpen(true)}>Change book status</Button>
               <UpdateStatus
                 bookId={bookId as string}
@@ -140,6 +142,9 @@ const BookById = () => {
           {data?.seller !== metadata?.uid && (
             <>
               <Separator />
+              {data?.bookStatus === "claimed" && (
+                <Alert className="bg-muted">This books is claimed and not available.</Alert>
+              )}
               {loading ? (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-row gap-3 items-center">

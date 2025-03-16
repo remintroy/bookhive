@@ -43,6 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
                       categories: 1,
                       condition: 1,
                       isSold: 1,
+                      bookStatus: 1,
                       location: {
                         address: 1,
                         googleMapUrl: 1,

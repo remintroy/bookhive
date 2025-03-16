@@ -30,4 +30,5 @@ export default interface Book {
   isSold?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  bookStatus?: string;
 }

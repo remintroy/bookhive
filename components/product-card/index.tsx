@@ -3,15 +3,11 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Skeleton } from "../ui/skeleton";
 import Book from "@/types/Books";
-import {
-  EllipsisVertical,
-  Pencil,
-  // Heart,CheckCircle, Share
-} from "lucide-react";
+import { EllipsisVertical, Pencil, CircleSmall } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -23,10 +19,12 @@ import {
 } from "../ui/dropdown-menu";
 import useMetadata from "@/hooks/useMetadata";
 import { useRouter } from "next/navigation";
-// import useBookApi from "@/hooks/useBookApi";
+import useBookApi from "@/hooks/useBookApi";
 
 interface BooksCard extends Book {
   loading?: boolean;
+  bookStatus?: string;
+  reFetch?: () => void;
 }
 
 export const ProductCardLoading = () => {
@@ -53,18 +51,22 @@ export const ProductCardLoading = () => {
   );
 };
 
-const ProductCard = ({ _id, title, author, condition, images, loading, location, seller }: BooksCard) => {
+const ProductCard = ({
+  _id,
+  title,
+  author,
+  condition,
+  images,
+  loading,
+  location,
+  seller,
+  bookStatus,
+  reFetch,
+}: BooksCard) => {
   const metadata = useMetadata();
   const router = useRouter();
-  // const bookApi = useBookApi();
-
-  // const handleMarkAsSold = async () => {
-  //   try {
-  //     await bookApi.updateStatus(_id as string, true);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const [open, setOpen] = useState(false);
+  const { UpdateStatus } = useBookApi();
 
   return (
     <Suspense fallback={<ProductCardLoading />}>
@@ -93,6 +95,13 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location,
             <div className="w-full">
               <div className="flex flex-row justify-between items-start">
                 <h1 className="line-clamp-2 max-w-[90%]">{title}</h1>
+                <UpdateStatus
+                  bookId={_id as string}
+                  open={open}
+                  bookStatus={bookStatus}
+                  setOpen={(open) => setOpen(open)}
+                  onComplete={reFetch}
+                />
                 <DropdownMenu>
                   {seller == metadata?.uid && (
                     <DropdownMenuTrigger asChild>
@@ -120,9 +129,9 @@ const ProductCard = ({ _id, title, author, condition, images, loading, location,
                         <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
                           <Pencil /> Edit details
                         </DropdownMenuItem>
-                        {/* <DropdownMenuItem>
-                          <CheckCircle /> Mark as sold
-                        </DropdownMenuItem> */}
+                        <DropdownMenuItem onClick={() => setOpen(true)}>
+                          <CircleSmall /> Change status
+                        </DropdownMenuItem>
                       </>
                     )}
                   </DropdownMenuContent>

@@ -117,9 +117,19 @@ export async function GET(req: NextRequest) {
 
       // Fetch all books from MongoDB
       const response = await Books.find({
-        isSold: { $ne: true },
+        $and: [
+          {
+            $or: [{ isSold: { $ne: true } }, { seller: user?.uid }],
+          },
+          {
+            $or: [
+              { title: { $regex: search, $options: "i" } },
+              { author: { $regex: search, $options: "i" } },
+              { categories: { $regex: search, $options: "i" } },
+            ],
+          },
+        ],
         _id: { $nin: excludes },
-        title: { $regex: search, $options: "i" },
         ...(lat && lon ? locationMatchQuery : {}),
         ...(categorys?.length > 0 ? { categories: { $in: categorys } } : {}),
         ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),

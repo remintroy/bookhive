@@ -1,12 +1,14 @@
 "use client";
 
 import ProductGrid from "@/components/product-grid";
+import { Alert } from "@/components/ui/alert";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import useBookApi from "@/hooks/useBookApi";
 import useMetadata from "@/hooks/useMetadata";
 import server from "@/lib/axios";
 import Book from "@/types/Books";
@@ -21,6 +23,9 @@ const BookById = () => {
   const [loading, SetLoading] = useState(true);
   const metadata = useMetadata();
   const route = useRouter();
+  const [open, setOpen] = useState(false);
+
+  const { UpdateStatus } = useBookApi();
 
   const fetchBookData = async () => {
     try {
@@ -118,7 +123,20 @@ const BookById = () => {
               </div>
             </div>
           )}
-
+          {data?.seller == metadata?.uid && (
+            <div className="flex flex-col gap-4">
+              <Separator />
+              <Alert className="bg-muted">This books is claimed and not available.</Alert>
+              <Button onClick={() => setOpen(true)}>Change book status</Button>
+              <UpdateStatus
+                bookId={bookId as string}
+                bookStatus={data?.bookStatus}
+                open={open}
+                setOpen={(open) => setOpen(open)}
+                onComplete={() => fetchBookData()}
+              />
+            </div>
+          )}
           {data?.seller !== metadata?.uid && (
             <>
               <Separator />

@@ -79,7 +79,9 @@ export default function ProductGrid(props?: Props) {
           <h2 className="text-xl text-start">No books found.</h2>
         </div>
       )}
-      {!props?.showLoading && !loading && books?.map((book) => <ProductCard key={book?._id} {...book} />)}
+      {!props?.showLoading &&
+        !loading &&
+        books?.map((book) => <ProductCard key={book?._id} {...book} reFetch={() => fetchBooks()} />)}
     </div>
   );
 }

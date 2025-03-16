@@ -6,7 +6,17 @@ const BookSchema = new mongoose.Schema(
     author: { type: String, trim: true, default: "" },
     description: { type: String, trim: true, default: "" },
     price: { type: Number, min: 0, default: 0 },
-    condition: { type: String, enum: ["new", "excellent", "good", "fair", "old"], required: true },
+    condition: {
+      type: String,
+      enum: ["new", "excellent", "good", "fair", "old"],
+      required: true,
+    },
+    bookStatus: {
+      type: String,
+      trim: true,
+      enum: ["available", "pending", "claimed"],
+      default: "available",
+    },
     categories: {
       type: [String],
       default: [],

@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import server from "@/lib/axios";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const statusText: { [key: string]: string } = {
   available: "This will mark the book as available to claim",
@@ -22,6 +22,16 @@ const statusText: { [key: string]: string } = {
 export default function useBookApi() {
   const addToFavorites = async (bookId: string) => {
     const { data } = await server.post(`/api/favorites/${bookId}`);
+    return data;
+  };
+
+  const getFromFavorites = async () => {
+    const { data } = await server.get(`/api/favorites`);
+    return data;
+  };
+
+  const deleteFromFavorites = async (bookId: string) => {
+    const { data } = await server.delete(`/api/favorites/${bookId}`);
     return data;
   };
 
@@ -120,6 +130,8 @@ export default function useBookApi() {
 
   return {
     addToFavorites,
+    getFromFavorites,
+    deleteFromFavorites,
     updateBook,
     deleteBook,
     getBookById,

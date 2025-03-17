@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ bookId?: string }> }) {
-  const requestHandler = async () => {
+  const requestHandler = async (user: UserRecord | null) => {
     try {
       const bookId = (await params).bookId;
       if (!bookId) return NextResponse.json({ error: "bookId not specified" }, { status: 400 });
@@ -42,12 +42,30 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ book
             },
           },
           {
+            $lookup: {
+              from: "favorites",
+              let: { userId: user?.uid, bookId: new mongoose.Types.ObjectId(bookId) },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [{ $eq: ["$userId", "$$userId"] }, { $eq: ["$bookId", "$$bookId"] }],
+                    },
+                  },
+                },
+              ],
+              as: "favorited",
+            },
+          },
+          {
             $set: {
               sellerData: { $arrayElemAt: ["$sellerData", 0] },
+              favorited: { $gt: [{ $size: "$favorited" }, 0] },
             },
           },
         ])
       )?.[0];
+
       if (!data) return NextResponse.json({ error: "Book not found" }, { status: 404 });
 
       return NextResponse.json(data, { status: 200 });

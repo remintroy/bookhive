@@ -1,67 +1,64 @@
 import connectToDb from "@/lib/mongodb";
 import { verifyAuth } from "@/middlewares/verify-auth";
-import Books from "@/models/Books";
 import Favorites from "@/models/Favorites";
 import { UserRecord } from "firebase-admin/auth";
-import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
-
-export async function POST(req: NextRequest, { params }: { params: Promise<{ bookId?: string }> }) {
-  const requestHandler = async (user: UserRecord | null) => {
-    try {
-      const bookId = (await params)?.bookId;
-
-      if (!bookId) return NextResponse.json({ error: "bookId not specified" }, { status: 400 });
-
-      await connectToDb();
-
-      const existingData = await Books.findOne({ _id: new mongoose.Types.ObjectId(bookId) });
-
-      if (!existingData) return NextResponse.json({ error: "Book not found" }, { status: 404 });
-
-      await Favorites.insertOne({ bookId: new mongoose.Types.ObjectId(bookId), userId: user?.uid });
-
-      return NextResponse.json({ message: "Book added to favorites" }, { status: 200 });
-    } catch (error) {
-      console.error("Favorites error:", error);
-      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    }
-  };
-  return verifyAuth(req, requestHandler);
-}
 
 export async function GET(req: NextRequest) {
   const requestHandler = async (user: UserRecord | null) => {
     try {
       await connectToDb();
 
-      const books = await Favorites.find({ userId: user?.uid });
+      const books = await Favorites.aggregate([
+        { $match: { userId: user?.uid } },
+        {
+          $lookup: {
+            from: "books",
+            as: "bookData",
+            let: { bookId: "$bookId" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$_id", "$$bookId"],
+                  },
+                  deleted: { $ne: true },
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  title: 1,
+                  author: 1,
+                  description: 1,
+                  categories: 1,
+                  condition: 1,
+                  images: 1,
+                  isSold: 1,
+                  bookStatus: 1,
+                  location: {
+                    address: 1,
+                    googleMapUrl: 1,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $set: {
+            bookData: { $arrayElemAt: ["$bookData", 0] },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            __v: 0,
+          },
+        },
+      ]);
 
       return NextResponse.json(books, { status: 200 });
-    } catch (error) {
-      console.error("Favorites error:", error);
-      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    }
-  };
-  return verifyAuth(req, requestHandler);
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ bookId?: string }> }) {
-  const requestHandler = async (user: UserRecord | null) => {
-    try {
-      const bookId = (await params)?.bookId;
-
-      if (!bookId) return NextResponse.json({ error: "bookId not specified" }, { status: 400 });
-
-      await connectToDb();
-
-      const existingData = await Books.findOne({ _id: new mongoose.Types.ObjectId(bookId) });
-
-      if (!existingData) return NextResponse.json({ error: "Book not found" }, { status: 404 });
-
-      await Favorites.deleteOne({ bookId: new mongoose.Types.ObjectId(bookId), userId: user?.uid });
-
-      return NextResponse.json({ message: "Book removed from favorites" }, { status: 200 });
     } catch (error) {
       console.error("Favorites error:", error);
       return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

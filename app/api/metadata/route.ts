@@ -71,6 +71,7 @@ export async function GET(req: NextRequest) {
                       author: 1,
                       description: 1,
                       categories: 1,
+                      images: 1,
                       condition: 1,
                       isSold: 1,
                       bookStatus: 1,

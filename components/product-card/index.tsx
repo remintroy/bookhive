@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Suspense, useState } from "react";
+import { ReactNode, Suspense, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Skeleton } from "../ui/skeleton";
 import Book from "@/types/Books";
-import { EllipsisVertical, Pencil, CircleSmall } from "lucide-react";
+import { EllipsisVertical, Pencil, CircleSmall, Heart, Share } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -20,11 +20,13 @@ import {
 import useMetadata from "@/hooks/useMetadata";
 import { useRouter } from "next/navigation";
 import useBookApi from "@/hooks/useBookApi";
+import ShareBookPopup from "../share-book";
 
 interface BooksCard extends Book {
   loading?: boolean;
   bookStatus?: string;
   reFetch?: () => void;
+  customMenu?: ReactNode;
 }
 
 export const ProductCardLoading = () => {
@@ -62,11 +64,13 @@ const ProductCard = ({
   seller,
   bookStatus,
   reFetch,
+  customMenu,
 }: BooksCard) => {
   const metadata = useMetadata();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { UpdateStatus } = useBookApi();
+  const { UpdateStatus, addToFavorites } = useBookApi();
+  const [openSharePop, setOpenSharePop] = useState(false);
 
   return (
     <Suspense fallback={<ProductCardLoading />}>
@@ -102,8 +106,13 @@ const ProductCard = ({
                   setOpen={(open) => setOpen(open)}
                   onComplete={reFetch}
                 />
+                <ShareBookPopup
+                  open={openSharePop}
+                  setOpen={setOpenSharePop}
+                  link={`${window.location.origin}/book/${_id}`}
+                />
                 <DropdownMenu>
-                  {seller == metadata?.uid && (
+                  {
                     <DropdownMenuTrigger asChild>
                       <Button
                         className="w-auto h-auto flex-shrink-0 p-1"
@@ -114,24 +123,32 @@ const ProductCard = ({
                         <EllipsisVertical className="flex-shrink-0 w-5 h-5" />
                       </Button>
                     </DropdownMenuTrigger>
-                  )}
+                  }
                   <DropdownMenuContent>
-                    <DropdownMenuLabel>Manage book</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {/* <DropdownMenuItem>
-                      <Share /> Share book
-                    </DropdownMenuItem> */}
-                    {/* <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
-                      <Heart /> Add to favorites
-                    </DropdownMenuItem> */}
-                    {seller == metadata?.uid && (
+                    {customMenu ? (
+                      customMenu
+                    ) : (
                       <>
-                        <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
-                          <Pencil /> Edit details
+                        <DropdownMenuLabel>Manage book</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setOpenSharePop(true)}>
+                          <Share /> Share book
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setOpen(true)}>
-                          <CircleSmall /> Change status
-                        </DropdownMenuItem>
+                        {metadata?.uid && (
+                          <DropdownMenuItem onClick={() => addToFavorites(_id as string)}>
+                            <Heart /> Add to favorites
+                          </DropdownMenuItem>
+                        )}
+                        {seller == metadata?.uid && (
+                          <>
+                            <DropdownMenuItem onClick={() => router.push(`/book/${_id}/edit`)}>
+                              <Pencil /> Edit details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setOpen(true)}>
+                              <CircleSmall /> Change status
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </>
                     )}
                   </DropdownMenuContent>

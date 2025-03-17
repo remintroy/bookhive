@@ -12,8 +12,9 @@ import { CustomUser } from "@/types/Books";
 import { onValue, orderByChild, orderByKey, query, ref, set } from "firebase/database";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import AttachBook from "./_attach-book";
 
 type Message = {
   id?: string;
@@ -22,6 +23,8 @@ type Message = {
   uid: string;
   createdAt: string;
   readAt: string | null;
+  type?: string;
+  bookId?: string | null;
 };
 
 type ChatUser = {
@@ -36,6 +39,8 @@ type ChatUser = {
 
 const ChatWithUser = () => {
   const uid = useParams().chat;
+  const searchParams = useSearchParams();
+  const bookId = searchParams?.get("book");
   const [userUrlId, setUserUrlId] = useState<string | undefined>(uid?.[0]);
   const metadata = useMetadata();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -65,7 +70,7 @@ const ChatWithUser = () => {
     }
   };
 
-  const sendMessage = async (message?: string) => {
+  const sendMessage = async (message?: string, type?: "book" | "text") => {
     try {
       setSendMessageLoading(true);
       const uid1 = metadata?.uid;
@@ -80,6 +85,8 @@ const ChatWithUser = () => {
         uid: uid1, // always current user
         createdAt: new Date().toISOString(),
         readAt: null,
+        type: type || "text",
+        bookId: bookId,
       };
 
       const userChatData: ChatUser = {
@@ -275,9 +282,11 @@ const ChatWithUser = () => {
                       <div className="text-xs text-muted-foreground">
                         {new Date(message?.createdAt)?.toLocaleTimeString()}
                       </div>
+                      {message?.bookId && <AttachBook bookId={message?.bookId as string} messageMode />}
                     </div>
                   );
                 })}
+              {bookId && <AttachBook bookId={bookId as string} />}
               <div ref={messagesEndRef} className="absolute bottom-0" />
             </div>
           </div>

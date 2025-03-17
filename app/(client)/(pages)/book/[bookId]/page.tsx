@@ -1,6 +1,7 @@
 "use client";
 
 import ProductGrid from "@/components/product-grid";
+import ShareBookPopup from "@/components/share-book";
 import { Alert } from "@/components/ui/alert";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,20 +13,24 @@ import useBookApi from "@/hooks/useBookApi";
 import useMetadata from "@/hooks/useMetadata";
 import server from "@/lib/axios";
 import Book from "@/types/Books";
-import { MessageSquareShare } from "lucide-react";
+import { Heart, MessageSquareShare, Share } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
+interface CustomBook extends Book {
+  favorited?: boolean;
+}
+
 const BookById = () => {
   const { bookId } = useParams();
-  const [data, setData] = useState<Book | null>(null);
+  const [data, setData] = useState<CustomBook | null>(null);
   const [loading, SetLoading] = useState(true);
   const metadata = useMetadata();
   const route = useRouter();
   const [open, setOpen] = useState(false);
 
-  const { UpdateStatus } = useBookApi();
+  const { UpdateStatus, addToFavorites, deleteFromFavorites } = useBookApi();
 
   const fetchBookData = async () => {
     try {
@@ -123,6 +128,31 @@ const BookById = () => {
               </div>
             </div>
           )}
+
+          <div className="flex flex-row items-center gap-2">
+            <ShareBookPopup link={`${window?.location?.origin}/book/${bookId}`}>
+              <Button className="flex-shrink-0" variant={"outline"} size={"icon"}>
+                <Share />
+              </Button>
+            </ShareBookPopup>
+
+            <Button
+              size={"icon"}
+              variant={"outline"}
+              onClick={() => {
+                if (!data?.favorited) {
+                  addToFavorites(bookId as string);
+                  setData((pre) => (pre ? { ...pre, favorited: true } : pre));
+                } else {
+                  deleteFromFavorites(bookId as string);
+                  setData((pre) => (pre ? { ...pre, favorited: false } : pre));
+                }
+              }}
+            >
+              <Heart fill={data?.favorited ? "white" : "none"} />
+            </Button>
+          </div>
+
           {data?.seller == metadata?.uid && (
             <div className="flex flex-col gap-4">
               <Separator />
@@ -169,7 +199,7 @@ const BookById = () => {
                     )}
                     <div className="capitalize">{data?.sellerData?.displayName}</div>
                   </div>
-                  <Button onClick={() => route.push(`/chat/${data?.seller}`)}>
+                  <Button onClick={() => route.push(`/chat/${data?.seller}?book=${bookId}`)}>
                     Chat with seller
                     <MessageSquareShare />
                   </Button>

@@ -92,7 +92,11 @@ const MyAccountPage = () => {
           >
             <BookHeart /> My Books & Profile
           </Button>
-          <Button variant={"outline"} className="w-full justify-start p-3 py-6">
+          <Button
+            variant={"outline"}
+            className="w-full justify-start p-3 py-6"
+            onClick={() => router.push(`/favorites`)}
+          >
             <Heart /> Favorites
           </Button>
           <Button variant={"outline"} className="w-full justify-start p-3 py-6" onClick={handleLogout}>

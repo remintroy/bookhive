@@ -14,6 +14,7 @@ import useMetadata from "@/hooks/useMetadata";
 import server from "@/lib/axios";
 import Book from "@/types/Books";
 import { Heart, MessageSquareShare, Share } from "lucide-react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -29,6 +30,7 @@ const BookById = () => {
   const metadata = useMetadata();
   const route = useRouter();
   const [open, setOpen] = useState(false);
+  const { theme } = useTheme();
 
   const { UpdateStatus, addToFavorites, deleteFromFavorites } = useBookApi();
 
@@ -149,7 +151,7 @@ const BookById = () => {
                 }
               }}
             >
-              <Heart fill={data?.favorited ? "white" : "none"} />
+              <Heart fill={data?.favorited ? (theme == "dark" ? "white" : "black") : "none"} />
             </Button>
           </div>
 

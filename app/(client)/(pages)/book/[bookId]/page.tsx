@@ -31,6 +31,13 @@ const BookById = () => {
   const route = useRouter();
   const [open, setOpen] = useState(false);
   const { theme } = useTheme();
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin);
+    }
+  }, []);
 
   const { UpdateStatus, addToFavorites, deleteFromFavorites } = useBookApi();
 
@@ -77,12 +84,7 @@ const BookById = () => {
                       className="rounded-[var(--radius)] overflow-hidden border relative bg-muted"
                     >
                       {data && (
-                        <Image
-                          fill
-                          src={url}
-                          alt={data?.title}
-                          className="object-scale-down w-full h-full select-none"
-                        />
+                        <Image fill src={url} alt={data?.title} className="w-full h-full object-contain select-none" />
                       )}
                     </AspectRatio>
                   </CarouselItem>
@@ -132,7 +134,7 @@ const BookById = () => {
           )}
 
           <div className="flex flex-row items-center gap-2">
-            <ShareBookPopup link={`${window?.location?.origin}/book/${bookId}`}>
+            <ShareBookPopup link={`${origin}/book/${bookId}`}>
               <Button className="flex-shrink-0" variant={"outline"} size={"icon"}>
                 <Share />
               </Button>

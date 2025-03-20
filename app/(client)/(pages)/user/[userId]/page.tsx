@@ -32,7 +32,7 @@ const UserDetails = () => {
 
   const fetchUserData = async () => {
     if (metadata?.uid === userId) {
-      return setUserData({
+      setUserData({
         displayName: metadata.displayName,
         photoURL: metadata.photoURL,
         photoURLCustom: metadata?.photoURLCustom,
@@ -42,6 +42,8 @@ const UserDetails = () => {
         disabled: metadata.disabled,
         uid: metadata?.uid,
       });
+      setUserDataLoading(false);
+      return;
     }
 
     setUserDataLoading(true);
@@ -94,7 +96,7 @@ const UserDetails = () => {
             {metadata?.uid == userId ? "Self message" : "Start chat"}
           </Button>
           {metadata?.uid == userId && (
-            <Button variant={"secondary"} onClick={() => router.push(`/my-account/edit`)}>
+            <Button variant={"secondary"} className="w-full" onClick={() => router.push(`/my-account/edit`)}>
               <EditIcon /> Edit profile
             </Button>
           )}

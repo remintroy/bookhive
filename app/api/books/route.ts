@@ -1,6 +1,7 @@
 import connectToDb from "@/lib/mongodb";
 import { verifyAuth } from "@/middlewares/verify-auth";
 import Books from "@/models/Books";
+import User from "@/models/User";
 import { UserRecord } from "firebase-admin/auth";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
@@ -57,13 +58,14 @@ export async function GET(req: NextRequest) {
       const { searchParams } = new URL(req.url);
 
       const page = Number(searchParams.get("page") || 1);
-      const limit = Number(searchParams.get("limit") || 10);
+      const limit = Number(searchParams.get("limit") || 100);
 
       const search = searchParams.get("search") || "";
 
-      const lat = Number(searchParams.get("lat") || "");
-      const lon = Number(searchParams.get("lon") || "");
-      const radius = Number(searchParams.get("radius") || 1000 * 50);
+      let lat = Number(searchParams.get("lat") || "");
+      let lon = Number(searchParams.get("lon") || "");
+
+      // const radius = Number(searchParams.get("radius") || 0);
 
       const showCreatedByMe = Boolean(searchParams.get("my-books") && user);
 
@@ -100,43 +102,60 @@ export async function GET(req: NextRequest) {
           ?.split?.(",")
           ?.filter?.((e) => e) || [];
 
-      const locationMatchQuery = {
-        "location.coordinates": {
-          $near: {
-            $geometry: {
-              type: "Point",
-              coordinates: [lat, lon],
-            },
-            ...(radius ? { $maxDistance: radius } : {}),
-          },
-        },
-      };
-
       // Connect to MongoDB
       await connectToDb();
 
-      // Fetch all books from MongoDB
-      const response = await Books.find({
-        $and: [
-          {
-            $or: [{ isSold: { $ne: true } }, { seller: user?.uid }],
-          },
-          {
-            $or: [
-              { title: { $regex: search, $options: "i" } },
-              { author: { $regex: search, $options: "i" } },
-              { categories: { $regex: search, $options: "i" } },
+      const userData = await User.findOne({ uid: user?.uid });
+
+      if (userData?.location?.location?.lat && userData?.location?.location?.lon && !lat && !lon) {
+        lat = Number(userData?.location?.location?.lat);
+        lon = Number(userData?.location?.location?.lon);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const locationMatchQuery: any = {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lat, lon] },
+          distanceField: "distance",
+          spherical: true,
+        },
+      };
+
+      const response = await Books.aggregate([
+        ...(lat && lon ? [locationMatchQuery] : []),
+        {
+          $match: {
+            $and: [
+              {
+                $or: [{ isSold: { $ne: true } }, { seller: user?.uid }],
+              },
+              {
+                $or: [
+                  { title: { $regex: search, $options: "i" } },
+                  { author: { $regex: search, $options: "i" } },
+                  { categories: { $regex: search, $options: "i" } },
+                ],
+              },
             ],
+            _id: { $nin: excludes },
+            ...(categorys?.length > 0 ? { categories: { $in: categorys } } : {}),
+            ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),
+            ...(userIds?.length > 0 ? { seller: { $in: userIds } } : {}),
           },
-        ],
-        _id: { $nin: excludes },
-        ...(lat && lon ? locationMatchQuery : {}),
-        ...(categorys?.length > 0 ? { categories: { $in: categorys } } : {}),
-        ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),
-        ...(userIds?.length > 0 ? { seller: { $in: userIds } } : {}),
-      })
-        .skip((page - 1) * limit)
-        .limit(limit);
+        },
+        {
+          $sort: {
+            distance: 1,
+            createdAt: -1,
+          },
+        },
+        {
+          $skip: (page - 1) * limit,
+        },
+        {
+          $limit: limit,
+        },
+      ]);
 
       return NextResponse.json(response, { status: 200 });
     } catch (error) {

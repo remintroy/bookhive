@@ -134,6 +134,7 @@ export async function GET(req: NextRequest) {
                   { title: { $regex: search, $options: "i" } },
                   { author: { $regex: search, $options: "i" } },
                   { categories: { $regex: search, $options: "i" } },
+                  { "location.address": { $regex: search, $options: "i" } },
                 ],
               },
             ],

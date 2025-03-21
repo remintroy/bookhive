@@ -17,6 +17,7 @@ type Props = {
   excludes?: string[];
   userIds?: string[];
   showLoading?: boolean;
+  condition?: string;
 };
 
 export default function ProductGrid(props?: Props) {
@@ -35,6 +36,7 @@ export default function ProductGrid(props?: Props) {
       if (props?.lon) searchQuery += `&lon=${props?.lon}`;
       if (props?.radius) searchQuery += `&radius=${props?.radius}`;
       if (props?.search) searchQuery += `&search=${props?.search}`;
+      if (props?.condition && props?.condition != "all") searchQuery += `&condition=${props?.condition}`;
       if (props?.limit) searchQuery += `&limit=${props?.limit}`;
       if (props?.userIds?.length) searchQuery += `&userIds=${props?.userIds?.join(",")}`;
       if (props?.categorys?.filter?.((e) => e)?.length && !options?.noCategory && !props?.categorys?.includes("All"))

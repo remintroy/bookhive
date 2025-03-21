@@ -67,6 +67,8 @@ export async function GET(req: NextRequest) {
 
       // const radius = Number(searchParams.get("radius") || 0);
 
+      const condition = searchParams.get("condition") || "";
+
       const showCreatedByMe = Boolean(searchParams.get("my-books") && user);
 
       let excludes: mongoose.Types.ObjectId[] = [];
@@ -135,6 +137,7 @@ export async function GET(req: NextRequest) {
                   { author: { $regex: search, $options: "i" } },
                   { categories: { $regex: search, $options: "i" } },
                   { "location.address": { $regex: search, $options: "i" } },
+                  { condition: { $regex: search, $options: "i" } },
                 ],
               },
             ],
@@ -142,6 +145,7 @@ export async function GET(req: NextRequest) {
             ...(categorys?.length > 0 ? { categories: { $in: categorys } } : {}),
             ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),
             ...(userIds?.length > 0 ? { seller: { $in: userIds } } : {}),
+            ...(condition ? { condition: condition } : {}),
           },
         },
         {

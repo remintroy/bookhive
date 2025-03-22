@@ -14,6 +14,8 @@ import {
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCoMBSsK-jTM0IkNwwqJTD19zKOaHLPdcs",
   authDomain: "bookhive-7f498.firebaseapp.com",

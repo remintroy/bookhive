@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "BookHive",
-  "short_name": "BookHive",
+  "name": "BookStore",
+  "short_name": "BookStore",
   "description": "A platform for donating and buying second-hand books",
   "start_url": "/",
   "display": "standalone",

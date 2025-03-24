@@ -98,9 +98,9 @@ const ChatWithUser = () => {
         createdAt: new Date().toISOString(),
       };
 
-      await set(ref(database, `messages/${chatId}/${Date.now()}`), messageToSubmit);
-      await set(ref(database, `chats/${uid1}/${uid2}`), userChatData); // Update user's chat list
-      await set(ref(database, `chats/${uid2}/${uid1}`), userChatData); // Update other user's chat list
+      await set(ref(database, `bookshare/messages/${chatId}/${Date.now()}`), messageToSubmit);
+      await set(ref(database, `bookshare/chats/${uid1}/${uid2}`), userChatData); // Update user's chat list
+      await set(ref(database, `bookshare/chats/${uid2}/${uid1}`), userChatData); // Update other user's chat list
       setInputValue("");
       inputRef?.current?.focus(); // Focus back to input field after message sent
     } catch (error) {
@@ -117,7 +117,7 @@ const ChatWithUser = () => {
     if (!uid1 || !uid2) return;
     const chatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`; // Ensures consistent ordering
 
-    const messagesRef = ref(database, `messages/${chatId}`);
+    const messagesRef = ref(database, `bookshare/messages/${chatId}`);
     const messageQuery = query(messagesRef, orderByKey());
     fetchUserData(uid2);
     setMessagesLoading(true);
@@ -144,7 +144,7 @@ const ChatWithUser = () => {
   useEffect(() => {
     if (!metadata?.uid) return;
 
-    const messagesRef = ref(database, `chats/${metadata?.uid}`);
+    const messagesRef = ref(database, `bookshare/chats/${metadata?.uid}`);
     const messageQuery = query(messagesRef, orderByChild("lastMessageAt"));
 
     // Listen for real-time updates

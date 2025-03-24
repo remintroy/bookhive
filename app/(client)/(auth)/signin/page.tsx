@@ -70,7 +70,7 @@ const SignIn = () => {
           <div className="w-full max-w-xs">
             <form className="flex flex-col gap-7" onSubmit={signInWithEmailHandler}>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Login to BookHive</h1>
+                <h1 className="text-2xl font-bold">Login to BookShare</h1>
                 <p className="text-sm text-muted-foreground">Enter your email below to login to your account</p>
               </div>
 

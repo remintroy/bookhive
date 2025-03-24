@@ -36,7 +36,7 @@ const HomePage = () => {
   return (
     <div className="container flex flex-col items-center m-auto p-3 md:p-5 gap-3 pb-10">
       <div className="w-full py-20 flex flex-col gap-3 rounded-[var(--radius)] bg-muted/0 md:bg-inherit md:border-none">
-        <h1 className="text-5xl md:text-6xl text-center font-bold">BookHive</h1>
+        <h1 className="text-5xl md:text-6xl text-center font-bold">BookShare</h1>
         <p className="text-lg md:text-2xl text-center text-muted-foreground">
           <span className="text-[hsl(var(--primary))] italic">Discover</span> and share your favorite books
         </p>

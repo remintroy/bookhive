@@ -1,4 +1,4 @@
 export const app = {
-  name: "BookHive",
+  name: "BookShare",
   description: "Donate used books",
 };

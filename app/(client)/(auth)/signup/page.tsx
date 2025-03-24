@@ -75,7 +75,7 @@ const SignUp = () => {
           <div className="w-full max-w-xs">
             <form onSubmit={handleSignUp} className="flex flex-col gap-7">
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Get started with BookHive</h1>
+                <h1 className="text-2xl font-bold">Get started with BookShare</h1>
                 <p className="text-sm text-muted-foreground">Enter your details to get started</p>
               </div>
 

@@ -39,7 +39,7 @@ const AttachBook = ({ bookId, messageMode }: { bookId?: string; messageMode?: bo
 
   useEffect(() => {
     if (bookId) fetchBookData();
-  }, [bookId]);
+  }, [bookId, fetchBookData]);
 
   return (
     <>

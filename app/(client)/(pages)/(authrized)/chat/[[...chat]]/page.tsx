@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import AttachBook from "./_attach-book";
+import { ChevronLeft } from "lucide-react";
 
 type Message = {
   id?: string;
@@ -257,6 +258,9 @@ const ChatWithUser = () => {
 
         <div className={`relative w-full ${userUrlId ? "block" : "hidden"} mbd-[2.2rem] md:mb-0 bg-muted/30`}>
           <div className="w-full p-3 md:p-3 border-b flex flex-row items-center gap-3">
+            <Button variant={"ghost"} size={"icon"} className="rounded-3xl" onClick={() => setUserUrlId("")}>
+              <ChevronLeft />
+            </Button>
             <Link href={`/user/${userUrlId}`} className="flex flex-row gap-3 w-max cursor-pointer items-center">
               <Avatar className="border">
                 {userUrlId && (userData[userUrlId]?.photoURL || userData[userUrlId]?.photoURLCustom) && (

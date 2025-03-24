@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "BookStore",
-  "short_name": "BookStore",
+  "name": "BookShare",
+  "short_name": "BookShare",
   "description": "A platform for donating and buying second-hand books",
   "start_url": "/",
   "display": "standalone",

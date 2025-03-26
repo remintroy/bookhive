@@ -457,7 +457,8 @@ const EditBookPage = () => {
                     !data?.author ||
                     !data?.location?.address ||
                     !data?.images?.filter((e) => e)?.length ||
-                    !data?.condition
+                    !data?.condition ||
+                    bookDeleteLoading
                   }
                 >
                   {saveBookLoading ? "Updating Details..." : "Save and continue"}
@@ -473,10 +474,11 @@ const EditBookPage = () => {
                         !data?.author ||
                         !data?.location?.address ||
                         !data?.images?.filter((e) => e)?.length ||
-                        !data?.condition
+                        !data?.condition ||
+                        bookDeleteLoading
                       }
                     >
-                      <Trash /> {saveBookLoading ? "Updating Details..." : "Delete book"}
+                      <Trash /> {bookDeleteLoading ? "Deleting..." : "Delete book"}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="w-fit min-w-[350px] md:w-auto">
@@ -489,7 +491,9 @@ const EditBookPage = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={deleteBook}>Continue</AlertDialogAction>
+                      <AlertDialogAction disabled={bookDeleteLoading} onClick={deleteBook}>
+                        Continue
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>

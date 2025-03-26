@@ -146,6 +146,7 @@ export async function GET(req: NextRequest) {
             ...(user && !showCreatedByMe ? { seller: { $ne: user?.uid } } : {}),
             ...(userIds?.length > 0 ? { seller: { $in: userIds } } : {}),
             ...(condition ? { condition: condition } : {}),
+            deleted: { $ne: true },
           },
         },
         {

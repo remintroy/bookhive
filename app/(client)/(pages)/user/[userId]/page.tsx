@@ -96,7 +96,7 @@ const UserDetails = () => {
             {metadata?.uid == userId ? "Self message" : "Start chat"}
           </Button>
           {metadata?.uid == userId && (
-            <Button variant={"secondary"} className="w-full" onClick={() => router.push(`/my-account/edit`)}>
+            <Button variant={"secondary"} className="w-full md:w-auto" onClick={() => router.push(`/my-account/edit`)}>
               <EditIcon /> Edit profile
             </Button>
           )}

@@ -83,6 +83,7 @@ const EditBookPage = () => {
 
   const [categorys, setCategorys] = useState<Category[]>([]);
   const [categorySearchInput, setCategorySearch] = useState("");
+  const [bookDeleteLoading, setBookDeleteLoading] = useState(false);
 
   const getPlaceData = async () => {
     const pincodeData = await getPlaceDataFromPincode(data?.location?.pincode || "");
@@ -122,11 +123,14 @@ const EditBookPage = () => {
 
   const deleteBook = async () => {
     try {
+      setBookDeleteLoading(true);
       await server.delete(`/api/books/${bookId}`);
       router.push("/");
     } catch (error) {
       console.log(error);
       // alert("Failed to delete book.");
+    } finally {
+      setBookDeleteLoading(false);
     }
   };
 
@@ -453,7 +457,8 @@ const EditBookPage = () => {
                     !data?.author ||
                     !data?.location?.address ||
                     !data?.images?.filter((e) => e)?.length ||
-                    !data?.condition
+                    !data?.condition ||
+                    bookDeleteLoading
                   }
                 >
                   {saveBookLoading ? "Updating Details..." : "Save and continue"}
@@ -469,10 +474,11 @@ const EditBookPage = () => {
                         !data?.author ||
                         !data?.location?.address ||
                         !data?.images?.filter((e) => e)?.length ||
-                        !data?.condition
+                        !data?.condition ||
+                        bookDeleteLoading
                       }
                     >
-                      <Trash /> {saveBookLoading ? "Updating Details..." : "Delete book"}
+                      <Trash /> {bookDeleteLoading ? "Deleting..." : "Delete book"}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="w-fit min-w-[350px] md:w-auto">
@@ -485,7 +491,9 @@ const EditBookPage = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={deleteBook}>Continue</AlertDialogAction>
+                      <AlertDialogAction disabled={bookDeleteLoading} onClick={deleteBook}>
+                        Continue
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>

@@ -83,6 +83,7 @@ const EditBookPage = () => {
 
   const [categorys, setCategorys] = useState<Category[]>([]);
   const [categorySearchInput, setCategorySearch] = useState("");
+  const [bookDeleteLoading, setBookDeleteLoading] = useState(false);
 
   const getPlaceData = async () => {
     const pincodeData = await getPlaceDataFromPincode(data?.location?.pincode || "");
@@ -122,11 +123,14 @@ const EditBookPage = () => {
 
   const deleteBook = async () => {
     try {
+      setBookDeleteLoading(true);
       await server.delete(`/api/books/${bookId}`);
       router.push("/");
     } catch (error) {
       console.log(error);
       // alert("Failed to delete book.");
+    } finally {
+      setBookDeleteLoading(false);
     }
   };
 

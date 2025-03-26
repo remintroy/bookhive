@@ -109,7 +109,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ book
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ bookId?: string }> }) {
   const requestHandler = async (user: UserRecord | null) => {
     try {
-      const data = await req.json();
       const bookId = (await params)?.bookId;
       if (!bookId) return NextResponse.json({ error: "bookId not specified" }, { status: 400 });
 
@@ -121,7 +120,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ b
       }
 
       await Books.updateOne({ _id: new mongoose.Types.ObjectId(bookId) }, { $set: { deleted: true } });
-      return NextResponse.json(data, { status: 200 });
+      return NextResponse.json({ message: "book deleted successfully" }, { status: 200 });
     } catch (error) {
       console.error("Book error:", error);
       return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

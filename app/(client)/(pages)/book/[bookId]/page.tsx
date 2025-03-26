@@ -163,6 +163,9 @@ const BookById = () => {
               {data?.bookStatus === "claimed" && (
                 <Alert className="bg-muted">This books is claimed and not available.</Alert>
               )}
+              {data?.bookStatus === "pending" && (
+                <Alert className="bg-muted">This books is under pending state. Might be unavailable</Alert>
+              )}
               <Button onClick={() => setOpen(true)}>Change book status</Button>
               <UpdateStatus
                 bookId={bookId as string}
@@ -178,6 +181,9 @@ const BookById = () => {
               <Separator />
               {data?.bookStatus === "claimed" && (
                 <Alert className="bg-muted">This books is claimed and not available.</Alert>
+              )}
+              {data?.bookStatus === "pending" && (
+                <Alert className="bg-muted">This books is under pending state. Might be unavailable</Alert>
               )}
               {loading ? (
                 <div className="flex flex-col gap-4">
